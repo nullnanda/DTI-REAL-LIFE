@@ -57,7 +57,7 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 2px solid rgba(255, 220, 240, 0.45);
-            box-shadow: 
+            box-shadow:
                 0 14px 35px rgba(74, 4, 78, 0.35),
                 inset 0 1px 1px rgba(255, 255, 255, 0.45);
         }
@@ -75,7 +75,7 @@
             transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .btn-glam:active {
+        .btn-glam:active:not(:disabled) {
             transform: translateY(4px);
             box-shadow: 0 2px 0 #9d174d, 0 4px 10px rgba(255, 42, 133, 0.4);
         }
@@ -88,9 +88,17 @@
             transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .btn-gold:active {
+        .btn-gold:active:not(:disabled) {
             transform: translateY(4px);
             box-shadow: 0 2px 0 #92400e;
+        }
+
+        .btn-waiting-slate {
+            background: linear-gradient(135deg, rgba(71, 85, 105, 0.78) 0%, rgba(51, 65, 85, 0.85) 100%);
+            color: #cbd5e1;
+            border: 2px solid rgba(148, 163, 184, 0.45);
+            box-shadow: 0 4px 0 rgba(30, 41, 59, 0.8);
+            cursor: not-allowed;
         }
 
         .doll-wrapper {
@@ -104,7 +112,7 @@
 
         .doll-sticker {
             border: 5px solid #ffffff;
-            box-shadow: 
+            box-shadow:
                 0 12px 28px rgba(74, 4, 78, 0.55),
                 0 0 0 3px #ff4da6,
                 0 0 24px rgba(255, 182, 225, 0.85);
@@ -226,6 +234,14 @@
             filter: drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 20px #ff9900);
             transform: scale(1.15) rotate(8deg);
         }
+
+        .y2k-byline {
+            font-family: 'Plus Jakarta Sans', monospace;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            color: rgba(255, 255, 255, 0.72);
+            text-shadow: 0 1px 6px rgba(74, 4, 78, 0.75);
+        }
     </style>
 </head>
 <body class="flex flex-col items-center justify-between p-3 sm:p-5">
@@ -251,6 +267,11 @@
         </div>
 
         <div class="flex items-center gap-2">
+            <button id="btn-header-profile" onclick="openProfileModal()" class="hidden items-center gap-1.5 bg-pink-500/30 hover:bg-pink-500/45 border border-pink-200/70 px-3 py-1.5 rounded-2xl text-xs font-extrabold text-pink-100 transition">
+                <i class="fa-solid fa-id-badge text-yellow-300"></i>
+                <span class="hidden sm:inline">Perfil</span>
+            </button>
+
             <button id="btn-header-ranking" onclick="openLeaderboardModal()" class="hidden items-center gap-1.5 bg-yellow-400/25 hover:bg-yellow-400/40 border border-yellow-300/70 px-3 py-1.5 rounded-2xl text-xs font-extrabold text-yellow-200 transition">
                 <i class="fa-solid fa-trophy text-yellow-300"></i>
                 <span class="hidden sm:inline">Ranking</span>
@@ -270,45 +291,125 @@
 
     <main class="content-layer w-full max-w-lg flex-1 flex flex-col justify-center">
 
-        <!-- TELA 1: LOGIN E ESCOLHA DE SALA -->
-        <section id="screen-login" class="glass-cute rounded-3xl p-6 sm:p-8 text-center space-y-6">
-            <div class="relative inline-block">
-                <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-pink-400 via-fuchsia-400 to-yellow-300 p-1.5 shadow-xl">
-                    <div class="w-full h-full bg-purple-950/80 rounded-full flex items-center justify-center text-4xl">
-                        👠
+        <!-- TELA 1: LOGIN, PERFIL OPCIONAL, FOTO & CONFIGURAÇÃO DA ANFITRIÃ -->
+        <section id="screen-login" class="glass-cute rounded-3xl p-6 sm:p-8 text-center space-y-5">
+            <div class="flex flex-col items-center">
+                <label class="relative inline-block cursor-pointer group" title="Toque para escolher uma foto de perfil">
+                    <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-pink-400 via-fuchsia-400 to-yellow-300 p-1.5 shadow-xl overflow-hidden">
+                        <div id="login-avatar-content" class="w-full h-full bg-purple-950/85 rounded-full flex items-center justify-center text-4xl overflow-hidden">
+                            👠
+                        </div>
                     </div>
-                </div>
-                <span class="absolute -bottom-1 -right-2 bg-yellow-300 text-purple-950 text-xs font-extrabold px-3 py-0.5 rounded-full shadow border border-white">
-                    GLAMOUR ✨
-                </span>
+                    <span class="mt-2 inline-flex items-center gap-1 bg-yellow-300 text-purple-950 text-xs font-extrabold px-3.5 py-1 rounded-full shadow border border-white">
+                        GLAMOUR ✨
+                    </span>
+                    <span class="block text-[10px] font-bold text-pink-200 mt-1 group-hover:text-yellow-200 transition">
+                        <i class="fa-solid fa-camera mr-1"></i>Escolher foto de perfil (opcional)
+                    </span>
+                    <input type="file" id="input-profile-photo" accept="image/*" onchange="handleProfilePhotoUpload(event)" class="hidden">
+                </label>
+                <button id="btn-clear-profile-photo" onclick="clearProfilePhoto()" class="hidden text-[10px] font-bold text-rose-200 hover:underline mt-1">
+                    Remover foto escolhida
+                </button>
             </div>
 
             <div>
                 <h2 class="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow">Pronto para desfilar?</h2>
                 <p class="text-sm text-pink-100">
-                    Envie até 5 fotos do seu look até às 20h00, vire um boneco animado e dispute o ranking da temporada com seus amigos!
+                    Envie até 5 fotos do seu look, vire um boneco animado e dispute o ranking com seus amigos!
                 </p>
             </div>
 
-            <div class="space-y-4 text-left">
+            <div class="space-y-3.5 text-left">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-pink-200 mb-1.5 ml-1">
                         Seu Nome Artístico
                     </label>
-                    <input type="text" id="input-player-name" maxlength="18" placeholder="Ex: Barbie Real, Diva, Ken..." 
-                        class="w-full bg-white/15 border-2 border-pink-200/50 focus:border-yellow-300 rounded-2xl px-4 py-3.5 text-white placeholder-pink-200/60 outline-none font-bold transition">
+                    <input type="text" id="input-player-name" maxlength="20" placeholder="Ex: Fernanda, Barbie Real, Diva..."
+                        class="w-full bg-white/15 border-2 border-pink-200/50 focus:border-yellow-300 rounded-2xl px-4 py-3 text-white placeholder-pink-200/60 outline-none font-bold transition">
                 </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-pink-200 mb-1.5 ml-1">
+                            Tag de Perfil (opcional)
+                        </label>
+                        <input type="text" id="input-profile-tag" maxlength="20" placeholder="Ex: Fernanda"
+                            class="w-full bg-white/15 border-2 border-pink-200/50 focus:border-yellow-300 rounded-2xl px-3.5 py-3 text-white placeholder-pink-200/60 outline-none font-bold transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-pink-200 mb-1.5 ml-1">
+                            PIN de 4 Dígitos (opcional)
+                        </label>
+                        <input type="password" id="input-profile-pin" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="Ex: 1234"
+                            class="w-full bg-white/15 border-2 border-pink-200/50 focus:border-yellow-300 rounded-2xl px-3.5 py-3 text-white placeholder-pink-200/60 outline-none font-extrabold tracking-widest transition">
+                    </div>
+                </div>
+                <p id="profile-tag-hint" class="text-[11px] text-pink-200/85 ml-1">
+                    Se preencher Tag + PIN, o perfil fica reservado para você e pode ser aberto em outro aparelho.
+                </p>
 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-pink-200 mb-1.5 ml-1">
-                        Código da Sala (use o mesmo com sua amiga!)
+                        Código de Sala
                     </label>
-                    <input type="text" id="input-room-code" maxlength="10" placeholder="Ex: DIVAS2026" 
-                        class="w-full bg-white/15 border-2 border-pink-200/50 focus:border-yellow-300 rounded-2xl px-4 py-3.5 text-white placeholder-pink-200/60 outline-none font-extrabold uppercase tracking-widest transition">
+                    <input type="text" id="input-room-code" oninput="updateHostSetupVisibility()" maxlength="12" placeholder="Ex: DIVAS2026"
+                        class="w-full bg-white/15 border-2 border-pink-200/50 focus:border-yellow-300 rounded-2xl px-4 py-3 text-white placeholder-pink-200/60 outline-none font-extrabold uppercase tracking-widest transition">
+                </div>
+
+                <!-- PAINEL DA ANFITRIÃ (QUANDO CRIA SALA NOVA) -->
+                <div id="host-setup-panel" class="bg-purple-950/65 border-2 border-yellow-300/50 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-yellow-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-crown"></i> Config da Anfitriã (Sala Nova)
+                        </span>
+                        <span id="room-mode-badge" class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-yellow-300/20 text-yellow-200 border border-yellow-300/40">
+                            Anfitriã
+                        </span>
+                    </div>
+
+                    <div id="host-controls-fields" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-[11px] font-bold text-pink-200 mb-1">
+                                    Montar Looks (dias)
+                                </label>
+                                <select id="select-prep-days" class="w-full bg-purple-900/90 border border-pink-200/50 rounded-xl px-3 py-2 text-xs font-extrabold text-white outline-none">
+                                    <option value="1">1 dia</option>
+                                    <option value="2" selected>2 dias</option>
+                                    <option value="3">3 dias</option>
+                                    <option value="4">4 dias</option>
+                                    <option value="5">5 dias</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-bold text-pink-200 mb-1">
+                                    Tempo de Votação (dias)
+                                </label>
+                                <select id="select-vote-days" class="w-full bg-purple-900/90 border border-pink-200/50 rounded-xl px-3 py-2 text-xs font-extrabold text-white outline-none">
+                                    <option value="1" selected>1 dia</option>
+                                    <option value="2">2 dias</option>
+                                    <option value="3">3 dias</option>
+                                    <option value="4">4 dias</option>
+                                    <option value="5">5 dias</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-pink-200 mb-1">
+                                Horário de Encerramento (Relógio)
+                            </label>
+                            <input type="time" id="input-end-time" value="21:30"
+                                class="w-full bg-purple-900/90 border border-pink-200/50 rounded-xl px-3 py-2 text-xs font-extrabold text-yellow-200 outline-none">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="space-y-3 pt-2">
+            <div class="space-y-3 pt-1">
                 <button onclick="joinOrCreateRoom(false)" class="w-full btn-glam py-4 rounded-2xl font-display font-bold text-lg tracking-wide text-white flex items-center justify-center gap-2">
                     <i class="fa-solid fa-sparkles"></i> Entrar no Camarim
                 </button>
@@ -316,6 +417,10 @@
                 <button onclick="joinOrCreateRoom(true)" class="w-full glass-card-light hover:bg-white/25 py-3.5 rounded-2xl font-bold text-sm text-white flex items-center justify-center gap-2 transition">
                     <i class="fa-solid fa-wand-magic-sparkles text-yellow-300"></i> Modo Teste Rápido (Com Amigos Bots)
                 </button>
+            </div>
+
+            <div class="pt-1">
+                <span class="y2k-byline">by @abominavelferneves</span>
             </div>
         </section>
 
@@ -325,7 +430,7 @@
                 <div class="flex items-start justify-between gap-2">
                     <div>
                         <div class="flex flex-wrap items-center gap-1.5 mb-1">
-                            <span class="inline-flex items-center gap-1 bg-pink-500/40 border border-pink-200/60 text-white text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                            <span id="theme-status-pill" class="inline-flex items-center gap-1 bg-pink-500/40 border border-pink-200/60 text-white text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
                                 <i class="fa-solid fa-fire text-yellow-300"></i> Tema Sorteado
                             </span>
                             <span id="theme-author-badge" class="text-[11px] font-bold text-yellow-200 bg-purple-950/60 px-2.5 py-0.5 rounded-full border border-yellow-300/40">
@@ -335,16 +440,26 @@
                         <h2 id="display-theme" class="text-2xl sm:text-3xl font-bold text-yellow-200 drop-shadow leading-tight">
                             Carregando tema...
                         </h2>
+                        <p id="round-schedule-summary" class="text-[11px] text-pink-200 font-semibold mt-1">
+                            2 dias de looks • 1 dia de votação • Encerra às 21:30
+                        </p>
                     </div>
 
                     <div class="flex flex-col gap-1.5 shrink-0">
-                        <button onclick="spinRandomTheme()" title="Sortear entre temas padrão e sugestões" class="btn-gold px-3 py-2 rounded-2xl font-extrabold text-xs flex items-center gap-1.5">
+                        <button id="btn-spin-theme" onclick="spinRandomTheme()" title="Sortear tema da rodada (Anfitriã)" class="btn-gold px-3 py-2 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-dice"></i> Sortear
                         </button>
-                        <button onclick="openThemeBankModal()" class="glass-card-light hover:bg-white/25 px-3 py-1.5 rounded-xl font-bold text-[11px] text-white flex items-center justify-center gap-1">
+                        <button id="btn-open-bank" onclick="openThemeBankModal()" class="glass-card-light hover:bg-white/25 px-3 py-1.5 rounded-xl font-bold text-[11px] text-white flex items-center justify-center gap-1">
                             <i class="fa-solid fa-lightbulb text-yellow-300"></i> Banco (<span id="theme-bank-count">10</span>)
                         </button>
                     </div>
+                </div>
+
+                <!-- BOTÃO COMEÇAR RODADA (ANFITRIÃ) -->
+                <div id="start-round-box">
+                    <button id="btn-start-round" onclick="startConfiguredRound()" class="w-full btn-gold py-3 rounded-2xl font-display font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Começar Rodada
+                    </button>
                 </div>
 
                 <div class="bg-purple-950/65 border border-pink-200/35 rounded-2xl p-3 flex flex-col sm:flex-row items-center justify-between gap-2.5">
@@ -353,17 +468,17 @@
                             <i class="fa-regular fa-clock"></i>
                         </div>
                         <div>
-                            <p class="text-[10px] uppercase tracking-wider text-pink-200 font-bold">
-                                Envio de looks até às 20h00
+                            <p id="countdown-label" class="text-[10px] uppercase tracking-wider text-pink-200 font-bold">
+                                Montar looks até às 21:30
                             </p>
                             <p id="countdown-timer" class="text-base font-extrabold text-white font-mono">
-                                00h 00m 00s
+                                Aguardando início
                             </p>
                         </div>
                     </div>
 
-                    <button onclick="triggerRunwayPhase()" class="w-full sm:w-auto btn-glam px-4 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-forward-fast"></i> Simular 20h01 (Desfilar!)
+                    <button id="btn-show-time" onclick="triggerRunwayPhase()" class="w-full sm:w-auto btn-glam px-4 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5">
+                        Hora do Show! Desfile 👠
                     </button>
                 </div>
             </div>
@@ -389,1197 +504,4 @@
                     </div>
 
                     <div id="doll-preview-container" class="hidden flex-col items-center w-full">
-                        <div id="doll-animated-box" class="doll-wrapper anim-walk">
-                            <div class="text-xl -mb-2 z-10 drop-shadow">✨</div>
-                            <img id="doll-preview-img" src="" alt="Seu Look" class="doll-sticker doll-toon-filter w-36 h-48 object-cover rounded-[2.2rem]">
-                            <div class="doll-pedestal"></div>
-                        </div>
-
-                        <div class="w-full mt-4">
-                            <p class="text-[11px] font-bold uppercase tracking-wider text-pink-200 mb-2">
-                                Suas Poses no Desfile (toque para ver):
-                            </p>
-                            <div id="my-poses-thumbnails" class="flex items-center justify-center gap-2 flex-wrap"></div>
-                        </div>
-
-                        <div class="flex flex-wrap items-center justify-center gap-1.5 mt-3 pt-3 border-t border-white/15 w-full">
-                            <button onclick="setDollAnimation('anim-walk')" class="px-3 py-1.5 rounded-xl bg-pink-500/45 hover:bg-pink-500/70 border border-pink-200/50 text-xs font-bold">
-                                💃 Gingado
-                            </button>
-                            <button onclick="setDollAnimation('anim-bounce')" class="px-3 py-1.5 rounded-xl bg-purple-500/45 hover:bg-purple-500/70 border border-purple-200/50 text-xs font-bold">
-                                ⭐ Pulinhos
-                            </button>
-                            <button onclick="setDollAnimation('anim-zoom')" class="px-3 py-1.5 rounded-xl bg-fuchsia-500/45 hover:bg-fuchsia-500/70 border border-fuchsia-200/50 text-xs font-bold">
-                                📸 Zoom Diva
-                            </button>
-                            <button onclick="toggleToonFilter()" class="px-3 py-1.5 rounded-xl bg-yellow-400/30 hover:bg-yellow-400/50 border border-yellow-200/50 text-xs font-bold text-yellow-200">
-                                🎨 Filtro Boneco
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <label id="btn-camera-upload" class="cursor-pointer btn-glam py-3 px-3 rounded-2xl font-bold text-sm text-white flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-camera"></i> Tirar Foto
-                        <input type="file" accept="image/*" capture="user" onchange="handlePhotoUpload(event)" class="hidden">
-                    </label>
-                    <label id="btn-gallery-upload" class="cursor-pointer glass-card-light hover:bg-white/25 py-3 px-3 rounded-2xl font-bold text-sm text-white flex items-center justify-center gap-2 transition">
-                        <i class="fa-solid fa-images"></i> Galeria (até 5)
-                        <input type="file" accept="image/*" multiple onchange="handlePhotoUpload(event)" class="hidden">
-                    </label>
-                </div>
-            </div>
-
-            <div class="glass-cute rounded-3xl p-4 space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-extrabold uppercase tracking-wider text-pink-200">
-                        <i class="fa-solid fa-users mr-1"></i> Modelos na Sala (<span id="players-count">1</span>)
-                    </span>
-                    <div class="flex items-center gap-3">
-                        <button onclick="openLeaderboardModal()" class="text-xs font-extrabold text-yellow-300 hover:underline flex items-center gap-1">
-                            <i class="fa-solid fa-trophy"></i> Placar Geral
-                        </button>
-                        <button onclick="addSimulatedFriend()" class="text-xs font-bold text-pink-200 hover:underline">
-                            + Bot Amigo
-                        </button>
-                    </div>
-                </div>
-                <div id="players-list" class="flex gap-2.5 overflow-x-auto pb-1"></div>
-            </div>
-        </section>
-
-        <!-- TELA 3: A PASSARELA -->
-        <section id="screen-runway" class="hidden space-y-4">
-            <div class="glass-cute rounded-3xl px-5 py-3 flex items-center justify-between">
-                <div>
-                    <span class="text-[10px] uppercase tracking-widest text-yellow-300 font-extrabold block">
-                        Desfile Oficial • 20h01 às 20h00
-                    </span>
-                    <h2 id="runway-theme-title" class="text-base sm:text-lg font-bold text-white truncate max-w-[210px] sm:max-w-xs">
-                        Tema do Dia
-                    </h2>
-                </div>
-                <div class="bg-pink-500/40 border border-pink-200/60 px-3 py-1 rounded-2xl text-xs font-extrabold text-white">
-                    Modelo <span id="runway-current-idx">1</span> / <span id="runway-total-count">1</span>
-                </div>
-            </div>
-
-            <div class="relative glass-cute rounded-3xl h-[410px] sm:h-[430px] overflow-hidden flex flex-col items-center justify-between p-4 border-2 border-pink-200/60">
-                <div class="spotlight -left-4 -rotate-12"></div>
-                <div class="spotlight -right-4 rotate-12"></div>
-                <div id="stage-flash" class="hidden absolute inset-0 bg-white z-30 pointer-events-none"></div>
-
-                <div class="z-20 flex flex-col items-center gap-1 mt-0.5">
-                    <div class="bg-purple-950/85 border-2 border-yellow-300 px-5 py-1 rounded-full shadow-lg">
-                        <span id="runway-model-name" class="font-display font-bold text-lg text-yellow-300 tracking-wide">
-                            Nome do Modelo
-                        </span>
-                    </div>
-                    <span id="runway-pose-badge" class="text-[11px] font-extrabold bg-pink-500/80 border border-white/50 px-3 py-0.5 rounded-full text-white shadow">
-                        Pose 1 de 1
-                    </span>
-                </div>
-
-                <div class="relative z-20 my-auto w-full flex items-center justify-between px-1 sm:px-4">
-                    <button id="btn-prev-pose" onclick="changeRunwayPose(-1)" class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/35 border border-white/50 flex items-center justify-center text-white shadow-lg transition active:scale-90">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-
-                    <div onclick="changeRunwayPose(1)" class="cursor-pointer flex flex-col items-center">
-                        <div id="runway-doll-wrapper" class="doll-wrapper anim-walk stage-entrance">
-                            <img id="runway-doll-img" src="" alt="Look na Passarela" class="doll-sticker doll-toon-filter w-44 h-56 sm:w-48 sm:h-60 object-cover rounded-[2.5rem]">
-                            <div class="doll-pedestal w-40"></div>
-                        </div>
-                    </div>
-
-                    <button id="btn-next-pose" onclick="changeRunwayPose(1)" class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/35 border border-white/50 flex items-center justify-center text-white shadow-lg transition active:scale-90">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-                </div>
-
-                <div class="z-20 flex flex-col items-center gap-2 w-full">
-                    <div id="runway-pose-dots" class="flex items-center justify-center gap-1.5"></div>
-                    <button onclick="triggerModelPose()" class="bg-white/20 hover:bg-white/35 backdrop-blur-md border border-white/50 px-4 py-1 rounded-full text-xs font-extrabold text-white flex items-center gap-1.5 transition active:scale-95">
-                        <i class="fa-solid fa-camera text-yellow-300"></i> Fazer Pose & Flashes!
-                    </button>
-                </div>
-
-                <div class="runway-floor absolute bottom-0 left-0 right-0 h-32 z-10 pointer-events-none"></div>
-            </div>
-
-            <div class="glass-cute rounded-3xl p-5 text-center space-y-3">
-                <p id="voting-instruction" class="text-sm font-bold text-white">
-                    Toque nas estrelas para votar no look:
-                </p>
-
-                <div id="stars-container" class="flex items-center justify-center gap-2 sm:gap-3 py-1">
-                    <button onclick="submitVote(1)" class="star-slot" data-star="1" aria-label="1 estrela">
-                        <i class="fa-solid fa-star star-icon"></i>
-                    </button>
-                    <button onclick="submitVote(2)" class="star-slot" data-star="2" aria-label="2 estrelas">
-                        <i class="fa-solid fa-star star-icon"></i>
-                    </button>
-                    <button onclick="submitVote(3)" class="star-slot" data-star="3" aria-label="3 estrelas">
-                        <i class="fa-solid fa-star star-icon"></i>
-                    </button>
-                    <button onclick="submitVote(4)" class="star-slot" data-star="4" aria-label="4 estrelas">
-                        <i class="fa-solid fa-star star-icon"></i>
-                    </button>
-                    <button onclick="submitVote(5)" class="star-slot" data-star="5" aria-label="5 estrelas">
-                        <i class="fa-solid fa-star star-icon"></i>
-                    </button>
-                </div>
-
-                <div class="pt-1">
-                    <button id="btn-next-model" onclick="nextRunwayModel()" class="w-full btn-glam py-3.5 rounded-2xl font-display font-bold text-base text-white flex items-center justify-center gap-2">
-                        Próximo Look <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- TELA 4: PÓDIO DA RODADA + RANKING GERAL -->
-        <section id="screen-podium" class="hidden space-y-4 text-center">
-            <div class="glass-cute rounded-3xl p-6 relative overflow-hidden">
-                <span class="inline-block bg-yellow-300/25 border border-yellow-300 text-yellow-200 text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full mb-2">
-                    Resultado do Desfile ✨
-                </span>
-                <h2 class="text-3xl font-bold text-white mb-1 drop-shadow">Pódio da Passarela</h2>
-                <p id="podium-theme-label" class="text-xs text-pink-200 mb-6 font-semibold">Tema: ---</p>
-
-                <div id="podium-stage" class="flex items-end justify-center gap-2 sm:gap-4 pt-6 pb-2 min-h-[270px]"></div>
-            </div>
-
-            <div class="glass-cute rounded-3xl p-4 text-left space-y-2">
-                <div class="flex items-center justify-between px-1">
-                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-pink-200">
-                        Notas desta Rodada
-                    </h3>
-                    <span class="text-[11px] font-bold text-yellow-300">
-                        +Pontos somados ao Ranking Geral!
-                    </span>
-                </div>
-                <div id="full-ranking-list" class="space-y-2"></div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button onclick="openLeaderboardModal()" class="glass-cute hover:bg-white/20 py-3.5 px-4 rounded-2xl font-display font-bold text-base text-yellow-300 flex items-center justify-center gap-2 border-2 border-yellow-300/60">
-                    <i class="fa-solid fa-trophy"></i> Ranking da Temporada
-                </button>
-
-                <button onclick="startNewRound()" class="btn-gold py-3.5 px-4 rounded-2xl font-display font-bold text-base flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-rotate-right"></i> Próxima Rodada
-                </button>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- MODAL 1: BANCO DE TEMAS -->
-    <div id="modal-theme" class="hidden fixed inset-0 bg-purple-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="glass-cute rounded-3xl p-6 w-full max-w-md space-y-4 border-2 border-pink-200/60 max-h-[88vh] flex flex-col">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="font-display font-bold text-xl text-yellow-300">Banco de Temas 🎲</h3>
-                    <p class="text-xs text-pink-200">Sugira ideias para entrarem no sorteio da sala!</p>
-                </div>
-                <button onclick="closeThemeBankModal()" class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="bg-white/10 p-3.5 rounded-2xl border border-white/25 space-y-2">
-                <label class="text-xs font-extrabold uppercase text-pink-200 block">
-                    Adicionar Sugestão ao Banco:
-                </label>
-                <div class="flex gap-2">
-                    <input type="text" id="input-suggest-theme" maxlength="42" placeholder="Ex: Vilã de Novela, Aeroporto Chic..." 
-                        class="flex-1 bg-purple-950/60 border border-pink-200/50 rounded-xl px-3 py-2.5 text-sm text-white placeholder-pink-200/50 outline-none">
-                    <button onclick="addThemeSuggestion()" class="btn-glam px-4 py-2 rounded-xl font-extrabold text-xs uppercase">
-                        + Adicionar
-                    </button>
-                </div>
-            </div>
-
-            <button onclick="spinRandomTheme(); closeThemeBankModal();" class="w-full btn-gold py-3 rounded-2xl font-display font-bold text-base flex items-center justify-center gap-2">
-                <i class="fa-solid fa-dice"></i> Sortear Tema Aleatório Agora
-            </button>
-
-            <div class="flex-1 overflow-y-auto space-y-2 pr-1">
-                <p class="text-xs font-extrabold uppercase text-pink-200 sticky top-0 bg-purple-950/90 py-1 px-2 rounded-lg">
-                    Temas no Banco (<span id="modal-bank-total">0</span>):
-                </p>
-                <div id="preset-themes-grid" class="space-y-2"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 2: RANKING ACUMULATIVO -->
-    <div id="modal-leaderboard" class="hidden fixed inset-0 bg-purple-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="glass-cute rounded-3xl p-6 w-full max-w-md space-y-4 border-2 border-yellow-300/70 max-h-[88vh] flex flex-col">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-10 h-10 rounded-2xl bg-yellow-400 text-purple-950 flex items-center justify-center text-xl shadow">
-                        <i class="fa-solid fa-trophy"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-display font-bold text-xl text-yellow-300">Ranking Geral da Sala</h3>
-                        <p class="text-xs text-pink-200">
-                            Acumulado de <span id="total-rounds-played" class="font-extrabold text-white">0</span> rodada(s) disputada(s)
-                        </p>
-                    </div>
-                </div>
-                <button onclick="closeLeaderboardModal()" class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="bg-white/10 rounded-2xl p-3 text-xs text-pink-100 border border-white/20">
-                <b>Pontuação da Temporada:</b> 🥇 1º Lugar (+3 pts) • 🥈 2º Lugar (+2 pts) • 🥉 3º Lugar (+1 pt) + total de estrelas ganhas nos desfiles!
-            </div>
-
-            <div id="season-leaderboard-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1"></div>
-
-            <button onclick="closeLeaderboardModal()" class="w-full btn-glam py-3 rounded-2xl font-display font-bold text-base text-white">
-                Voltar ao Jogo ✨
-            </button>
-        </div>
-    </div>
-
-    <footer class="content-layer w-full max-w-lg text-center py-3 text-[11px] text-white/80 font-medium">
-        Envie até 5 fotos até às 20h00 • Desfile e votação até às 20h00 do dia seguinte 👑
-    </footer>
-
-    <!-- SCRIPT DO JOGO COM FIREBASE REALTIME DATABASE -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
-
-        // ==========================================
-        // EFEITO DE GLITTER ANIMADO NO FUNDO
-        // ==========================================
-        function initGlitterBackground() {
-            const canvas = document.getElementById('glitter-canvas');
-            const ctx = canvas.getContext('2d');
-            let width = canvas.width = window.innerWidth;
-            let height = canvas.height = window.innerHeight;
-
-            window.addEventListener('resize', () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            });
-
-            const colors = ['#ffffff', '#fef08a', '#fbcfe8', '#f5d0fe', '#ffd700'];
-            const particles = Array.from({ length: 65 }, () => ({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                size: Math.random() * 3.2 + 1.2,
-                speedY: Math.random() * 0.4 + 0.15,
-                twinkleSpeed: Math.random() * 0.05 + 0.02,
-                phase: Math.random() * Math.PI * 2,
-                color: colors[Math.floor(Math.random() * colors.length)],
-                isStar: Math.random() > 0.65
-            }));
-
-            function drawSparkle(x, y, r, color, alpha) {
-                ctx.save();
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.moveTo(x, y - r * 2.2);
-                ctx.quadraticCurveTo(x, y, x + r * 2.2, y);
-                ctx.quadraticCurveTo(x, y, x, y + r * 2.2);
-                ctx.quadraticCurveTo(x, y, x - r * 2.2, y);
-                ctx.quadraticCurveTo(x, y, x, y - r * 2.2);
-                ctx.fill();
-                ctx.restore();
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, width, height);
-                particles.forEach(p => {
-                    p.y -= p.speedY;
-                    if (p.y < -10) {
-                        p.y = height + 10;
-                        p.x = Math.random() * width;
-                    }
-                    p.phase += p.twinkleSpeed;
-                    const alpha = 0.25 + (Math.sin(p.phase) + 1) * 0.37;
-
-                    if (p.isStar) {
-                        drawSparkle(p.x, p.y, p.size, p.color, alpha);
-                    } else {
-                        ctx.save();
-                        ctx.globalAlpha = alpha;
-                        ctx.fillStyle = p.color;
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.restore();
-                    }
-                });
-                requestAnimationFrame(animate);
-            }
-            animate();
-        }
-        initGlitterBackground();
-
-        // ==========================================
-        // BANCO DE TEMAS PADRÃO
-        // ==========================================
-        const DEFAULT_THEME_BANK = [
-            { text: "Vilão de Novela Mexicana 💅", author: "Banco Oficial ✨" },
-            { text: "Y2K / Anos 2000 Pop Star 💿", author: "Banco Oficial ✨" },
-            { text: "Met Gala Improvisado em Casa 👑", author: "Banco Oficial ✨" },
-            { text: "Festa do Pijama de Milionário 🧸", author: "Banco Oficial ✨" },
-            { text: "Estrela de Rock dos Anos 80 🎸", author: "Banco Oficial ✨" },
-            { text: "Look Todo de Uma Cor Só 🎨", author: "Banco Oficial ✨" },
-            { text: "Aeroporto Chic / Celebridade 📸", author: "Banco Oficial ✨" },
-            { text: "Fada / Ser Místico Urbano ✨", author: "Banco Oficial ✨" },
-            { text: "Agente Secreto Disfarçado 🕶️", author: "Banco Oficial ✨" },
-            { text: "Primeiro Encontro Desastroso 💔", author: "Banco Oficial ✨" }
-        ];
-
-        const BOT_PROFILES = [
-            {
-                id: "bot_luna",
-                name: "Luna Glam ✨",
-                photos: [
-                    `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect width="200" height="260" fill="%23fce7f3"/><circle cx="100" cy="70" r="38" fill="%23fed7aa"/><path d="M60 65 Q100 10 140 65 Q150 130 135 140 Q100 110 65 140 Q50 130 60 65" fill="%234a044e"/><circle cx="88" cy="68" r="4" fill="%23000"/><circle cx="112" cy="68" r="4" fill="%23000"/><path d="M92 84 Q100 92 108 84" stroke="%23db2777" stroke-width="3" fill="none"/><path d="M65 115 L135 115 L155 230 L45 230 Z" fill="%23ff2a85"/><text x="100" y="248" font-size="12" fill="%23831843" font-family="sans-serif" font-weight="bold" text-anchor="middle">POSE 1: LOOK COMPLETO</text></svg>`,
-                    `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect width="200" height="260" fill="%23fdf2f8"/><circle cx="100" cy="115" r="65" fill="%23fed7aa"/><path d="M35 100 Q100 15 165 100 Q175 180 155 195 Q100 155 45 195 Q25 180 35 100" fill="%234a044e"/><circle cx="78" cy="112" r="7" fill="%23000"/><circle cx="122" cy="112" r="7" fill="%23000"/><circle cx="65" cy="130" r="10" fill="%23f472b6" opacity="0.6"/><circle cx="135" cy="130" r="10" fill="%23f472b6" opacity="0.6"/><path d="M85 142 Q100 156 115 142" stroke="%23db2777" stroke-width="4" fill="none"/><text x="100" y="245" font-size="12" fill="%23831843" font-family="sans-serif" font-weight="bold" text-anchor="middle">POSE 2: CLOSE MAKE ✨</text></svg>`
-                ]
-            },
-            {
-                id: "bot_enzo",
-                name: "Enzo Drip 🔥",
-                photos: [
-                    `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect width="200" height="260" fill="%23dbeafe"/><circle cx="100" cy="72" r="36" fill="%23f5d0a9"/><path d="M64 58 Q100 22 136 58 Z" fill="%231e1b4b"/><rect x="74" y="62" width="22" height="12" rx="3" fill="%23000"/><rect x="104" y="62" width="22" height="12" rx="3" fill="%23000"/><path d="M58 115 L142 115 L148 230 L52 230 Z" fill="%231d4ed8"/><text x="100" y="248" font-size="12" fill="%231e3a8a" font-family="sans-serif" font-weight="bold" text-anchor="middle">POSE 1: OUTFIT DRIP</text></svg>`
-                ]
-            },
-            {
-                id: "bot_chloe",
-                name: "Chloé Y2K 💖",
-                photos: [
-                    `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect width="200" height="260" fill="%23f3e8ff"/><circle cx="100" cy="72" r="37" fill="%23ffedd5"/><circle cx="62" cy="52" r="18" fill="%23facc15"/><circle cx="138" cy="52" r="18" fill="%23facc15"/><path d="M64 68 Q100 25 136 68" fill="%23facc15"/><circle cx="88" cy="70" r="4" fill="%23000"/><circle cx="112" cy="70" r="4" fill="%23000"/><path d="M68 115 L132 115 L150 230 L50 230 Z" fill="%239333ea"/><text x="100" y="248" font-size="12" fill="%23581c87" font-family="sans-serif" font-weight="bold" text-anchor="middle">POSE 1: ESTILO Y2K</text></svg>`
-                ]
-            }
-        ];
-
-        // Configuração do Firebase Realtime Database
-        const firebaseConfig = {
-            apiKey: "AIzaSyAeUrLzzs7JFEJJkBrvVKq1CcZ7ox16JVU",
-            authDomain: "dti-real-life-bb583.firebaseapp.com",
-            databaseURL: "https://dti-real-life-bb583-default-rtdb.firebaseio.com",
-            projectId: "dti-real-life-bb583",
-            storageBucket: "dti-real-life-bb583.firebasestorage.app",
-            messagingSenderId: "826641125313",
-            appId: "1:826641125313:web:79e4889c02458a9ed76940"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        let state = {
-            userId: 'user_' + Math.random().toString(36).substring(2, 9),
-            playerName: '',
-            roomCode: '',
-            currentTheme: DEFAULT_THEME_BANK[0],
-            themeBank: [...DEFAULT_THEME_BANK],
-            phase: 'prep',
-            players: {},
-            seasonStats: {},
-            roundsPlayed: 0,
-            selectedPreviewPoseIdx: 0,
-            runwayIndex: 0,
-            runwayPoseIndex: 0,
-            selectedVote: 0,
-            isBotDemo: false
-        };
-
-        // Monitora status real da conexão com o Realtime Database
-        onValue(ref(db, '.info/connected'), (snap) => {
-            const label = document.getElementById('online-status-label');
-            if (snap.val() === true) {
-                label.textContent = "🟢 Online • Firebase Conectado";
-                label.className = "text-[11px] font-extrabold uppercase tracking-widest text-emerald-300 block -mt-0.5";
-            } else {
-                label.textContent = "🟠 Aguardando Realtime DB...";
-                label.className = "text-[11px] font-extrabold uppercase tracking-widest text-yellow-200 block -mt-0.5";
-            }
-        });
-
-        window.showToast = function(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            const colors = {
-                info: 'bg-purple-950/90 border-pink-300 text-white',
-                success: 'bg-emerald-950/90 border-emerald-300 text-emerald-100',
-                gold: 'bg-yellow-300/95 border-white text-purple-950 font-extrabold'
-            };
-            toast.className = `${colors[type] || colors.info} border-2 px-4 py-3 rounded-2xl shadow-2xl text-sm text-center backdrop-blur-md transition-all duration-300`;
-            toast.innerHTML = message;
-            container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(-10px)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        };
-
-        function switchScreen(screenName) {
-            ['screen-login', 'screen-prep', 'screen-runway', 'screen-podium'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(`screen-${screenName}`).classList.remove('hidden');
-        }
-
-        function ensurePlayerInSeasonStats(name, photo) {
-            const key = name.trim().toLowerCase();
-            if (!state.seasonStats[key]) {
-                state.seasonStats[key] = {
-                    name: name.trim(),
-                    wins: 0,
-                    seasonPoints: 0,
-                    totalStars: 0,
-                    lastPhoto: photo || null
-                };
-            } else if (photo) {
-                state.seasonStats[key].lastPhoto = photo;
-            }
-        }
-
-        window.joinOrCreateRoom = async function(isDemoMode) {
-            const nameInput = document.getElementById('input-player-name').value.trim();
-            const codeInput = document.getElementById('input-room-code').value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
-
-            if (!nameInput && !isDemoMode) {
-                showToast("✨ Digite seu nome artístico primeiro!");
-                return;
-            }
-
-            state.playerName = nameInput || "Estrela VIP ✨";
-            state.roomCode = codeInput || ("DIVA" + Math.floor(100 + Math.random() * 900));
-            state.isBotDemo = isDemoMode;
-
-            document.getElementById('header-room-code').textContent = state.roomCode;
-            document.getElementById('room-badge').classList.remove('hidden');
-            document.getElementById('room-badge').classList.add('flex');
-            document.getElementById('btn-header-ranking').classList.remove('hidden');
-            document.getElementById('btn-header-ranking').classList.add('flex');
-
-            const myPlayer = {
-                id: state.userId,
-                name: state.playerName,
-                photos: [],
-                anim: 'anim-walk',
-                toonFilter: true,
-                votes: {}
-            };
-
-            state.players = { [state.userId]: myPlayer };
-            ensurePlayerInSeasonStats(state.playerName, null);
-
-            if (isDemoMode) {
-                BOT_PROFILES.forEach(bot => {
-                    state.players[bot.id] = {
-                        id: bot.id,
-                        name: bot.name,
-                        photos: [...bot.photos],
-                        anim: 'anim-walk',
-                        toonFilter: true,
-                        votes: {}
-                    };
-                    ensurePlayerInSeasonStats(bot.name, bot.photos[0]);
-                });
-                state.roundsPlayed = 1;
-                state.seasonStats["luna glam ✨"].wins = 1;
-                state.seasonStats["luna glam ✨"].seasonPoints = 3;
-                state.seasonStats["luna glam ✨"].totalStars = 14;
-                state.seasonStats["enzo drip 🔥"].seasonPoints = 2;
-                state.seasonStats["enzo drip 🔥"].totalStars = 11;
-                renderPrepScreen();
-                switchScreen('prep');
-                showToast("💖 Modo Teste com amigos de múltiplas poses ativado!", "gold");
-                return;
-            }
-
-            await syncRoomWithFirebase(myPlayer);
-        };
-
-        async function syncRoomWithFirebase(myPlayer) {
-            try {
-                const roomRef = ref(db, `rooms/${state.roomCode}`);
-                const snap = await get(roomRef);
-
-                if (!snap.exists()) {
-                    const randomTheme = DEFAULT_THEME_BANK[Math.floor(Math.random() * DEFAULT_THEME_BANK.length)];
-                    await set(roomRef, {
-                        code: state.roomCode,
-                        currentTheme: randomTheme,
-                        themeBank: DEFAULT_THEME_BANK,
-                        phase: 'prep',
-                        players: { [state.userId]: myPlayer },
-                        seasonStats: state.seasonStats,
-                        roundsPlayed: 0
-                    });
-                } else {
-                    const data = snap.val();
-                    const updatedPlayers = data.players || {};
-                    if (!updatedPlayers[state.userId]) {
-                        updatedPlayers[state.userId] = myPlayer;
-                        await update(ref(db, `rooms/${state.roomCode}/players`), {
-                            [state.userId]: myPlayer
-                        });
-                    }
-                }
-
-                onValue(roomRef, (docSnap) => {
-                    const data = docSnap.val();
-                    if (!data) return;
-                    state.currentTheme = data.currentTheme || state.currentTheme;
-                    state.themeBank = Array.isArray(data.themeBank) && data.themeBank.length > 0 ? data.themeBank : DEFAULT_THEME_BANK;
-                    state.players = data.players || {};
-                    state.seasonStats = data.seasonStats || {};
-                    state.roundsPlayed = data.roundsPlayed || 0;
-
-                    if (data.phase && data.phase !== state.phase) {
-                        state.phase = data.phase;
-                        if (state.phase === 'runway') {
-                            startRunwayUI();
-                        } else if (state.phase === 'podium') {
-                            renderPodiumScreen();
-                            switchScreen('podium');
-                        } else {
-                            renderPrepScreen();
-                            switchScreen('prep');
-                        }
-                    } else if (state.phase === 'prep') {
-                        renderPrepScreen();
-                    }
-                });
-
-                switchScreen('prep');
-            } catch (err) {
-                console.error("Erro Firebase:", err);
-                showToast("⚠️ Verifique se o Realtime Database foi criado no Firebase.");
-                renderPrepScreen();
-                switchScreen('prep');
-            }
-        }
-
-        async function pushStateToCloud() {
-            if (state.isBotDemo || !state.roomCode) return;
-            try {
-                await update(ref(db, `rooms/${state.roomCode}`), {
-                    currentTheme: state.currentTheme,
-                    themeBank: state.themeBank,
-                    phase: state.phase,
-                    players: state.players,
-                    seasonStats: state.seasonStats,
-                    roundsPlayed: state.roundsPlayed
-                });
-            } catch (err) {
-                console.error("Erro ao sincronizar:", err);
-            }
-        }
-
-        window.copyRoomCode = function() {
-            const tempInput = document.createElement('input');
-            tempInput.value = state.roomCode;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            showToast(`📋 Código <b>${state.roomCode}</b> copiado! Mande para sua amiga.`, "success");
-        };
-
-        function updateCountdownTo20h() {
-            const now = new Date();
-            const target = new Date();
-            target.setHours(20, 0, 0, 0);
-            if (now >= target) target.setDate(target.getDate() + 1);
-
-            const diff = target - now;
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-            const pad = (n) => String(n).padStart(2, '0');
-            const timerEl = document.getElementById('countdown-timer');
-            if (timerEl) timerEl.textContent = `${pad(hours)}h ${pad(mins)}m ${pad(secs)}s`;
-        }
-        setInterval(updateCountdownTo20h, 1000);
-        updateCountdownTo20h();
-
-        window.spinRandomTheme = async function() {
-            if (!state.themeBank || state.themeBank.length === 0) {
-                state.themeBank = [...DEFAULT_THEME_BANK];
-            }
-            const randomIndex = Math.floor(Math.random() * state.themeBank.length);
-            state.currentTheme = state.themeBank[randomIndex];
-            renderPrepScreen();
-            showToast(`🎲 Sorteado: <b>${state.currentTheme.text}</b>`, "gold");
-            await pushStateToCloud();
-        };
-
-        window.openThemeBankModal = function() {
-            renderThemeBankList();
-            document.getElementById('modal-theme').classList.remove('hidden');
-        };
-
-        window.closeThemeBankModal = function() {
-            document.getElementById('modal-theme').classList.add('hidden');
-        };
-
-        window.addThemeSuggestion = async function() {
-            const input = document.getElementById('input-suggest-theme');
-            const val = input.value.trim();
-            if (!val) {
-                showToast("✍️ Escreva uma sugestão de tema primeiro!");
-                return;
-            }
-
-            const newEntry = {
-                text: val + " ✨",
-                author: `Sugerido por ${state.playerName}`
-            };
-
-            state.themeBank.unshift(newEntry);
-            input.value = '';
-            renderThemeBankList();
-            renderPrepScreen();
-            showToast(`💡 Tema <b>"${val}"</b> adicionado ao banco de sorteio!`, "success");
-            await pushStateToCloud();
-        };
-
-        window.selectSpecificTheme = async function(index) {
-            if (state.themeBank[index]) {
-                state.currentTheme = state.themeBank[index];
-                closeThemeBankModal();
-                renderPrepScreen();
-                showToast(`✨ Tema definido: <b>${state.currentTheme.text}</b>`);
-                await pushStateToCloud();
-            }
-        };
-
-        function renderThemeBankList() {
-            document.getElementById('modal-bank-total').textContent = state.themeBank.length;
-            const grid = document.getElementById('preset-themes-grid');
-            grid.innerHTML = state.themeBank.map((item, idx) => `
-                <div class="flex items-center justify-between gap-2 bg-white/10 hover:bg-pink-500/25 border border-white/20 rounded-2xl px-3.5 py-2.5">
-                    <div>
-                        <p class="text-sm font-bold text-white">${item.text}</p>
-                        <span class="text-[10px] font-semibold text-yellow-200">${item.author}</span>
-                    </div>
-                    <button onclick="selectSpecificTheme(${idx})" class="shrink-0 bg-pink-500/50 hover:bg-pink-500 border border-pink-200/50 px-3 py-1.5 rounded-xl text-xs font-extrabold text-white">
-                        Usar
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        window.handlePhotoUpload = function(event) {
-            const files = Array.from(event.target.files || []);
-            if (files.length === 0) return;
-
-            const me = state.players[state.userId];
-            if (!me.photos) me.photos = [];
-
-            const remainingSlots = 5 - me.photos.length;
-            if (remainingSlots <= 0) {
-                showToast("⚠️ Você já atingiu o limite de 5 fotos! Exclua uma miniatura para trocar.");
-                return;
-            }
-
-            const filesToProcess = files.slice(0, remainingSlots);
-            let processedCount = 0;
-
-            filesToProcess.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = async function() {
-                        const canvas = document.createElement('canvas');
-                        const maxW = 360;
-                        const scale = Math.min(1, maxW / img.width);
-                        canvas.width = img.width * scale;
-                        canvas.height = img.height * scale;
-
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
-                        me.photos.push(compressedDataUrl);
-                        state.selectedPreviewPoseIdx = me.photos.length - 1;
-
-                        ensurePlayerInSeasonStats(me.name, me.photos[0]);
-
-                        processedCount++;
-                        if (processedCount === filesToProcess.length) {
-                            renderPrepScreen();
-                            showToast(`📸 Pose ${me.photos.length}/5 adicionada ao seu boneco!`, "gold");
-                            await pushStateToCloud();
-                        }
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-
-            event.target.value = '';
-        };
-
-        window.selectPreviewPose = function(idx) {
-            state.selectedPreviewPoseIdx = idx;
-            renderPrepScreen();
-        };
-
-        window.removeMyPose = async function(idx, event) {
-            event.stopPropagation();
-            const me = state.players[state.userId];
-            me.photos.splice(idx, 1);
-            if (state.selectedPreviewPoseIdx >= me.photos.length) {
-                state.selectedPreviewPoseIdx = Math.max(0, me.photos.length - 1);
-            }
-            renderPrepScreen();
-            showToast("🗑️ Foto removida.");
-            await pushStateToCloud();
-        };
-
-        window.setDollAnimation = async function(animClass) {
-            const box = document.getElementById('doll-animated-box');
-            box.classList.remove('anim-walk', 'anim-bounce', 'anim-zoom', 'anim-pose');
-            box.classList.add(animClass);
-            state.players[state.userId].anim = animClass;
-            await pushStateToCloud();
-        };
-
-        window.toggleToonFilter = async function() {
-            const img = document.getElementById('doll-preview-img');
-            img.classList.toggle('doll-toon-filter');
-            state.players[state.userId].toonFilter = img.classList.contains('doll-toon-filter');
-            await pushStateToCloud();
-        };
-
-        window.addSimulatedFriend = function() {
-            const available = BOT_PROFILES.filter(b => !state.players[b.id]);
-            if (available.length === 0) {
-                showToast("Todos os amigos virtuais já entraram na sala! 💖");
-                return;
-            }
-            const bot = available[0];
-            state.players[bot.id] = {
-                id: bot.id,
-                name: bot.name,
-                photos: [...bot.photos],
-                anim: 'anim-walk',
-                toonFilter: true,
-                votes: {}
-            };
-            ensurePlayerInSeasonStats(bot.name, bot.photos[0]);
-            renderPrepScreen();
-            showToast(`💃 ${bot.name} entrou com ${bot.photos.length} poses prontas!`, "success");
-        };
-
-        function renderPrepScreen() {
-            document.getElementById('display-theme').textContent = state.currentTheme.text;
-            document.getElementById('theme-author-badge').textContent = state.currentTheme.author;
-            document.getElementById('theme-bank-count').textContent = state.themeBank.length;
-
-            const me = state.players[state.userId];
-            const photos = (me && me.photos) ? me.photos : [];
-
-            const badge = document.getElementById('upload-status-badge');
-            badge.textContent = `${photos.length} / 5 Fotos`;
-
-            if (photos.length > 0) {
-                document.getElementById('doll-empty-state').classList.add('hidden');
-                document.getElementById('doll-preview-container').classList.remove('hidden');
-                document.getElementById('doll-preview-container').classList.add('flex');
-
-                const activePhoto = photos[state.selectedPreviewPoseIdx] || photos[0];
-                document.getElementById('doll-preview-img').src = activePhoto;
-
-                badge.className = "text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-400/25 text-emerald-200 border border-emerald-300/60";
-
-                const thumbsEl = document.getElementById('my-poses-thumbnails');
-                thumbsEl.innerHTML = photos.map((src, idx) => `
-                    <div onclick="selectPreviewPose(${idx})" class="relative cursor-pointer w-14 h-16 rounded-xl overflow-hidden border-2 ${idx === state.selectedPreviewPoseIdx ? 'border-yellow-300 scale-105 shadow-lg' : 'border-white/40 opacity-80'} transition">
-                        <img src="${src}" class="w-full h-full object-cover">
-                        <span class="absolute bottom-0 left-0 right-0 bg-black/60 text-[9px] font-bold text-white text-center">
-                            Pose ${idx + 1}
-                        </span>
-                        <button onclick="removeMyPose(${idx}, event)" class="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] flex items-center justify-center shadow">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                `).join('');
-            } else {
-                document.getElementById('doll-empty-state').classList.remove('hidden');
-                document.getElementById('doll-preview-container').classList.add('hidden');
-                document.getElementById('doll-preview-container').classList.remove('flex');
-                badge.className = "text-xs font-extrabold px-3 py-1 rounded-full bg-white/15 text-pink-100 border border-white/30";
-            }
-
-            const listEl = document.getElementById('players-list');
-            const playersArr = Object.values(state.players);
-            document.getElementById('players-count').textContent = playersArr.length;
-
-            listEl.innerHTML = playersArr.map(p => {
-                const pPhotos = p.photos || [];
-                return `
-                    <div class="shrink-0 bg-purple-950/65 border ${pPhotos.length > 0 ? 'border-emerald-300/60' : 'border-pink-200/35'} rounded-2xl p-2.5 w-24 text-center">
-                        <div class="w-12 h-12 mx-auto rounded-full overflow-hidden bg-pink-400/25 border-2 border-white mb-1.5 flex items-center justify-center">
-                            ${pPhotos.length > 0 
-                                ? `<img src="${pPhotos[0]}" class="w-full h-full object-cover">` 
-                                : `<span class="text-lg">👗</span>`
-                            }
-                        </div>
-                        <p class="text-xs font-bold text-white truncate">${p.name}</p>
-                        <span class="text-[10px] ${pPhotos.length > 0 ? 'text-yellow-300' : 'text-pink-200'} font-bold">
-                            ${pPhotos.length > 0 ? `${pPhotos.length} pose(s) ✨` : 'Vestindo...'}
-                        </span>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        window.triggerRunwayPhase = async function() {
-            Object.values(state.players).forEach(p => {
-                if (!p.photos || p.photos.length === 0) {
-                    p.photos = [
-                        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect width="200" height="260" fill="%23fdf2f8"/><circle cx="100" cy="75" r="35" fill="%23fbcfe8"/><text x="100" y="88" font-size="38" text-anchor="middle">😎</text><path d="M60 120 L140 120 L155 230 L45 230 Z" fill="%23db2777"/><text x="100" y="185" font-size="16" fill="%23fff" font-family="sans-serif" font-weight="bold" text-anchor="middle">LOOK SURPRESA</text></svg>`
-                    ];
-                }
-                if (!p.votes) p.votes = {};
-            });
-
-            const playerIds = Object.keys(state.players);
-            BOT_PROFILES.forEach(bot => {
-                if (state.players[bot.id]) {
-                    playerIds.forEach(targetId => {
-                        if (targetId !== bot.id) {
-                            state.players[targetId].votes[bot.id] = Math.floor(Math.random() * 3) + 3;
-                        }
-                    });
-                }
-            });
-
-            state.phase = 'runway';
-            state.runwayIndex = 0;
-            state.runwayPoseIndex = 0;
-            await pushStateToCloud();
-            startRunwayUI();
-        };
-
-        function startRunwayUI() {
-            switchScreen('runway');
-            document.getElementById('runway-theme-title').textContent = state.currentTheme.text;
-            showCurrentRunwayModel();
-        }
-
-        function showCurrentRunwayModel() {
-            const playersArr = Object.values(state.players);
-            const currentModel = playersArr[state.runwayIndex];
-            if (!currentModel) return;
-
-            state.runwayPoseIndex = 0;
-            document.getElementById('runway-current-idx').textContent = state.runwayIndex + 1;
-            document.getElementById('runway-total-count').textContent = playersArr.length;
-            document.getElementById('runway-model-name').textContent = currentModel.name;
-
-            updateRunwayPoseVisual(true);
-
-            const modelVotes = currentModel.votes || {};
-            state.selectedVote = modelVotes[state.userId] || 0;
-            updateStarsUI(state.selectedVote);
-
-            const isMe = currentModel.id === state.userId;
-            const instructionEl = document.getElementById('voting-instruction');
-            const starsContainer = document.getElementById('stars-container');
-
-            if (isMe) {
-                instructionEl.innerHTML = "💖 É você na passarela! Alterne suas poses acima!";
-                starsContainer.classList.add('opacity-45', 'pointer-events-none');
-            } else {
-                instructionEl.innerHTML = `Toque nas estrelas para avaliar <b>${currentModel.name}</b>:`;
-                starsContainer.classList.remove('opacity-45', 'pointer-events-none');
-            }
-
-            const nextBtn = document.getElementById('btn-next-model');
-            if (state.runwayIndex === playersArr.length - 1) {
-                nextBtn.innerHTML = `Ver Pódio & Ranking <i class="fa-solid fa-crown text-yellow-300"></i>`;
-            } else {
-                nextBtn.innerHTML = `Próximo Look <i class="fa-solid fa-arrow-right"></i>`;
-            }
-        }
-
-        window.changeRunwayPose = function(delta) {
-            const playersArr = Object.values(state.players);
-            const currentModel = playersArr[state.runwayIndex];
-            if (!currentModel || !currentModel.photos) return;
-
-            const totalPoses = currentModel.photos.length;
-            if (totalPoses <= 1) {
-                triggerModelPose();
-                return;
-            }
-
-            state.runwayPoseIndex = (state.runwayPoseIndex + delta + totalPoses) % totalPoses;
-            updateRunwayPoseVisual(false);
-            triggerModelPose();
-        };
-
-        window.setRunwayPoseDirect = function(idx) {
-            state.runwayPoseIndex = idx;
-            updateRunwayPoseVisual(false);
-            triggerModelPose();
-        };
-
-        function updateRunwayPoseVisual(isFirstEntrance) {
-            const playersArr = Object.values(state.players);
-            const currentModel = playersArr[state.runwayIndex];
-            const photos = currentModel.photos || [];
-            const totalPoses = photos.length;
-
-            const dollImg = document.getElementById('runway-doll-img');
-            dollImg.src = photos[state.runwayPoseIndex] || photos[0];
-
-            document.getElementById('runway-pose-badge').textContent = `Pose ${state.runwayPoseIndex + 1} de ${totalPoses}`;
-
-            const prevBtn = document.getElementById('btn-prev-pose');
-            const nextBtn = document.getElementById('btn-next-pose');
-            if (totalPoses > 1) {
-                prevBtn.classList.remove('invisible');
-                nextBtn.classList.remove('invisible');
-            } else {
-                prevBtn.classList.add('invisible');
-                nextBtn.classList.add('invisible');
-            }
-
-            const dotsEl = document.getElementById('runway-pose-dots');
-            dotsEl.innerHTML = photos.map((_, idx) => `
-                <button onclick="setRunwayPoseDirect(${idx})" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold transition ${idx === state.runwayPoseIndex ? 'bg-yellow-300 text-purple-950 scale-110 shadow' : 'bg-white/25 text-white hover:bg-white/40'}">
-                    ${idx + 1}
-                </button>
-            `).join('');
-
-            if (isFirstEntrance) {
-                const wrapper = document.getElementById('runway-doll-wrapper');
-                wrapper.classList.remove('stage-entrance', 'anim-walk', 'anim-bounce', 'anim-zoom', 'anim-pose');
-                void wrapper.offsetWidth;
-                wrapper.classList.add('stage-entrance', currentModel.anim || 'anim-walk');
-                setTimeout(triggerModelPose, 550);
-            }
-        }
-
-        window.triggerModelPose = function() {
-            const wrapper = document.getElementById('runway-doll-wrapper');
-            const flash = document.getElementById('stage-flash');
-
-            wrapper.classList.remove('anim-pose');
-            void wrapper.offsetWidth;
-            wrapper.classList.add('anim-pose');
-
-            flash.classList.remove('hidden', 'camera-flash');
-            void flash.offsetWidth;
-            flash.classList.add('camera-flash');
-            setTimeout(() => flash.classList.add('hidden'), 450);
-        };
-
-        window.submitVote = async function(stars) {
-            const playersArr = Object.values(state.players);
-            const currentModel = playersArr[state.runwayIndex];
-            if (!currentModel || currentModel.id === state.userId) return;
-
-            state.selectedVote = stars;
-            if (!currentModel.votes) currentModel.votes = {};
-            currentModel.votes[state.userId] = stars;
-            updateStarsUI(stars);
-            showToast(`⭐ Você deu <b>${stars} estrela${stars > 1 ? 's' : ''}</b> brilhantes para ${currentModel.name}!`, "gold");
-            await pushStateToCloud();
-        };
-
-        function updateStarsUI(count) {
-            document.querySelectorAll('#stars-container .star-slot').forEach(slot => {
-                const val = parseInt(slot.getAttribute('data-star'));
-                if (val <= count) {
-                    slot.classList.add('selected');
-                } else {
-                    slot.classList.remove('selected');
-                }
-            });
-        }
-
-        window.nextRunwayModel = async function() {
-            const playersArr = Object.values(state.players);
-            if (state.runwayIndex < playersArr.length - 1) {
-                state.runwayIndex++;
-                showCurrentRunwayModel();
-            } else {
-                finalizeRoundAndAccumulateScores();
-                state.phase = 'podium';
-                await pushStateToCloud();
-                renderPodiumScreen();
-                switchScreen('podium');
-            }
-        };
-
-        function finalizeRoundAndAccumulateScores() {
-            const ranked = Object.values(state.players).map(p => {
-                const voteValues = Object.values(p.votes || {});
-                const totalStars = voteValues.reduce((acc, v) => acc + v, 0);
-                const roundStars = totalStars > 0 ? totalStars : 5;
-                return { ...p, score: roundStars };
-            }).sort((a, b) => b.score - a.score);
-
-            state.roundsPlayed = (state.roundsPlayed || 0) + 1;
-
-            ranked.forEach((player, index) => {
-                const key = player.name.trim().toLowerCase();
-                ensurePlayerInSeasonStats(player.name, (player.photos && player.photos[0]) || null);
-
-                const podiumBonus = index === 0 ? 3 : index === 1 ? 2 : index === 2 ? 1 : 0;
-                if (index === 0) state.seasonStats[key].wins += 1;
-                state.seasonStats[key].seasonPoints += podiumBonus;
-                state.seasonStats[key].totalStars += player.score;
-                if (player.photos && player.photos[0]) {
-                    state.seasonStats[key].lastPhoto = player.photos[0];
-                }
-            });
-        }
-
-        function renderPodiumScreen() {
-            document.getElementById('podium-theme-label').textContent = `Tema: ${state.currentTheme.text}`;
-
-            const ranked = Object.values(state.players).map(p => {
-                const voteValues = Object.values(p.votes || {});
-                const totalStars = voteValues.reduce((acc, v) => acc + v, 0);
-                const finalScore = totalStars > 0 ? totalStars : 5;
-                return { ...p, score: finalScore };
-            }).sort((a, b) => b.score - a.score);
-
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 95,
-                    spread: 80,
-                    origin: { y: 0.6 },
-                    colors: ['#ff2a85', '#ffd700', '#e879f9', '#ffffff']
-                });
-            }
-
-            const podiumOrder = [
-                { player: ranked[1], rank: 2, height: 'h-28', bg: 'from-slate-200 to-slate-400', badge: '🥈 2º (+2pts)' },
-                { player: ranked[0], rank: 1, height: 'h-36', bg: 'from-yellow-200 via-amber-400 to-yellow-500', badge: '👑 1º (+3pts)' },
-                { player: ranked[2], rank: 3, height: 'h-24', bg: 'from-amber-500 to-amber-700', badge: '🥉 3º (+1pt)' }
-            ];
-
-            const podiumStage = document.getElementById('podium-stage');
-            podiumStage.innerHTML = podiumOrder.map(slot => {
-                if (!slot.player) return '';
-                const isFirst = slot.rank === 1;
-                const coverPhoto = (slot.player.photos && slot.player.photos[0]) || '';
-                return `
-                    <div class="flex flex-col items-center w-1/3 max-w-[125px]">
-                        <div class="doll-wrapper ${isFirst ? 'anim-bounce' : ''} mb-2">
-                            ${isFirst ? '<div class="text-2xl -mb-1">👑</div>' : ''}
-                            <img src="${coverPhoto}" class="doll-sticker ${isFirst ? 'w-24 h-32' : 'w-20 h-28'} object-cover rounded-3xl">
-                        </div>
-                        <p class="text-xs font-extrabold text-white truncate w-full px-1">${slot.player.name}</p>
-                        <span class="text-[11px] font-bold text-yellow-200 mb-1.5">
-                            ⭐ ${slot.player.score} estrelas
-                        </span>
-                        <div class="w-full ${slot.height} bg-gradient-to-b ${slot.bg} rounded-t-2xl border-t-2 border-white flex flex-col items-center justify-start pt-2 shadow-xl">
-                            <span class="font-display font-extrabold text-[10px] sm:text-xs text-purple-950 bg-white/90 px-2 py-0.5 rounded-full">
-                                ${slot.badge}
-                            </span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            const listEl = document.getElementById('full-ranking-list');
-            listEl.innerHTML = ranked.map((p, idx) => `
-                <div class="flex items-center justify-between bg-purple-950/60 border border-white/15 rounded-2xl px-3.5 py-2.5">
-                    <div class="flex items-center gap-3">
-                        <span class="font-display font-bold text-pink-200 w-5">#${idx + 1}</span>
-                        <img src="${(p.photos && p.photos[0]) || ''}" class="w-10 h-10 rounded-xl object-cover border border-white">
-                        <span class="font-bold text-sm text-white">${p.name}</span>
-                    </div>
-                    <span class="font-extrabold text-sm text-yellow-300">
-                        ⭐ ${p.score}
-                    </span>
-                </div>
-            `).join('');
-        }
-
-        window.openLeaderboardModal = function() {
-            document.getElementById('total-rounds-played').textContent = state.roundsPlayed || 0;
-            const seasonArr = Object.values(state.seasonStats || {}).sort((a, b) => {
-                if (b.seasonPoints !== a.seasonPoints) return b.seasonPoints - a.seasonPoints;
-                return b.totalStars - a.totalStars;
-            });
-
-            const listEl = document.getElementById('season-leaderboard-list');
-            if (seasonArr.length === 0) {
-                listEl.innerHTML = `<p class="text-center text-sm text-pink-200 py-6">Nenhuma rodada finalizada ainda. Desfile para pontuar! ✨</p>`;
-            } else {
-                listEl.innerHTML = seasonArr.map((entry, idx) => `
-                    <div class="flex items-center justify-between bg-white/12 border ${idx === 0 ? 'border-yellow-300 bg-yellow-400/15' : 'border-white/20'} rounded-2xl px-3.5 py-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-full ${idx === 0 ? 'bg-yellow-300 text-purple-950' : 'bg-white/20 text-white'} font-display font-extrabold text-xs flex items-center justify-center">
-                                ${idx === 0 ? '👑' : `#${idx + 1}`}
-                            </div>
-                            ${entry.lastPhoto 
-                                ? `<img src="${entry.lastPhoto}" class="w-10 h-10 rounded-xl object-cover border border-white">`
-                                : `<div class="w-10 h-10 rounded-xl bg-pink-500/30 border border-white/40 flex items-center justify-center">✨</div>`
-                            }
-                            <div>
-                                <p class="font-extrabold text-sm text-white">${entry.name}</p>
-                                <span class="text-[11px] text-pink-200 font-semibold">
-                                    🏆 ${entry.wins} vitória(s) • ⭐ ${entry.totalStars} estrelas
-                                </span>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="font-display font-extrabold text-base text-yellow-300 block">
-                                ${entry.seasonPoints} pts
-                            </span>
-                            <span class="text-[9px] uppercase tracking-wider text-pink-200 font-bold">Total</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            document.getElementById('modal-leaderboard').classList.remove('hidden');
-        };
-
-        window.closeLeaderboardModal = function() {
-            document.getElementById('modal-leaderboard').classList.add('hidden');
-        };
-
-        window.startNewRound = async function() {
-            const randomIdx = Math.floor(Math.random() * state.themeBank.length);
-            state.currentTheme = state.themeBank[randomIdx];
-            state.phase = 'prep';
-            state.runwayIndex = 0;
-            state.runwayPoseIndex = 0;
-            state.selectedPreviewPoseIdx = 0;
-
-            Object.values(state.players).forEach(p => {
-                if (!p.id.startsWith('bot_')) {
-                    p.photos = [];
-                }
-                p.votes = {};
-            });
-
-            await pushStateToCloud();
-            renderPrepScreen();
-            switchScreen('prep');
-            showToast("🎉 Nova rodada iniciada! Placar da temporada mantido.", "gold");
-        };
-    </script>
-</body>
-</html>
+                        <div id="doll-animated-box" class="doll-wrapper anim-
