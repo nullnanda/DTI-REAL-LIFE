@@ -242,6 +242,10 @@
             color: rgba(255, 255, 255, 0.72);
             text-shadow: 0 1px 6px rgba(74, 4, 78, 0.75);
         }
+
+        .chat-selectable {
+            user-select: text;
+        }
     </style>
 </head>
 <body class="flex flex-col items-center justify-between p-3 sm:p-5">
@@ -251,43 +255,84 @@
     <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-11/12 max-w-md pointer-events-none flex flex-col gap-2"></div>
 
     <!-- CABEÇALHO FIXO -->
-    <header class="content-layer w-full max-w-lg flex items-center justify-between glass-cute rounded-3xl px-4 py-3 mb-4">
-        <div class="flex items-center gap-2.5">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-500 via-fuchsia-400 to-yellow-300 flex items-center justify-center text-white text-xl shadow-lg border border-white/60">
+    <header class="content-layer w-full max-w-lg flex items-center justify-between glass-cute rounded-3xl px-3.5 py-3 mb-4 gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+            <div class="w-9 h-9 shrink-0 rounded-2xl bg-gradient-to-tr from-pink-500 via-fuchsia-400 to-yellow-300 flex items-center justify-center text-white text-lg shadow-lg border border-white/60">
                 <i class="fa-solid fa-crown"></i>
             </div>
-            <div>
-                <h1 class="text-lg sm:text-xl font-bold tracking-wide text-white drop-shadow leading-tight">
+            <div class="min-w-0">
+                <h1 class="text-base sm:text-xl font-bold tracking-wide text-white drop-shadow leading-tight truncate">
                     DRESS TO IMPRESS
                 </h1>
-                <span id="online-status-label" class="text-[11px] font-extrabold uppercase tracking-widest text-yellow-200 block -mt-0.5">
+                <span id="online-status-label" class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-yellow-200 block -mt-0.5 truncate">
                     ⏳ Conectando Firebase...
                 </span>
             </div>
         </div>
 
-        <div class="flex items-center gap-2">
-            <button id="btn-header-profile" onclick="openProfileModal()" class="hidden items-center gap-1.5 bg-pink-500/30 hover:bg-pink-500/45 border border-pink-200/70 px-3 py-1.5 rounded-2xl text-xs font-extrabold text-pink-100 transition">
+        <div class="flex items-center gap-1.5 shrink-0">
+            <!-- BOTÃO JANELINHA DE CHAT DA SALA -->
+            <button id="btn-header-chat" onclick="toggleChatDrawer()" title="Abrir Chat da Sala" class="hidden relative items-center gap-1.5 bg-fuchsia-500/35 hover:bg-fuchsia-500/55 border border-pink-200/75 px-2.5 py-1.5 rounded-2xl text-xs font-extrabold text-white transition">
+                <i class="fa-solid fa-comments text-yellow-300"></i>
+                <span class="hidden sm:inline">Chat</span>
+                <span id="chat-unread-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 border border-white text-[10px] font-extrabold text-white flex items-center justify-center shadow">
+                    0
+                </span>
+            </button>
+
+            <button id="btn-header-profile" onclick="openProfileModal()" class="hidden items-center gap-1.5 bg-pink-500/30 hover:bg-pink-500/45 border border-pink-200/70 px-2.5 py-1.5 rounded-2xl text-xs font-extrabold text-pink-100 transition">
                 <i class="fa-solid fa-id-badge text-yellow-300"></i>
                 <span class="hidden sm:inline">Perfil</span>
             </button>
 
-            <button id="btn-header-ranking" onclick="openLeaderboardModal()" class="hidden items-center gap-1.5 bg-yellow-400/25 hover:bg-yellow-400/40 border border-yellow-300/70 px-3 py-1.5 rounded-2xl text-xs font-extrabold text-yellow-200 transition">
+            <button id="btn-header-ranking" onclick="openLeaderboardModal()" class="hidden items-center gap-1.5 bg-yellow-400/25 hover:bg-yellow-400/40 border border-yellow-300/70 px-2.5 py-1.5 rounded-2xl text-xs font-extrabold text-yellow-200 transition">
                 <i class="fa-solid fa-trophy text-yellow-300"></i>
                 <span class="hidden sm:inline">Ranking</span>
             </button>
 
-            <div id="room-badge" class="hidden items-center gap-1.5 bg-pink-950/60 border border-pink-300/50 px-3 py-1.5 rounded-2xl">
+            <div id="room-badge" class="hidden items-center gap-1 bg-pink-950/60 border border-pink-300/50 px-2.5 py-1 rounded-2xl">
                 <div class="text-right">
-                    <span class="text-[9px] text-pink-200 block uppercase font-bold">Sala</span>
-                    <span id="header-room-code" class="text-xs font-extrabold text-yellow-300 tracking-wider">---</span>
+                    <span class="text-[8px] text-pink-200 block uppercase font-bold leading-none">Sala</span>
+                    <span id="header-room-code" class="text-[11px] font-extrabold text-yellow-300 tracking-wider">---</span>
                 </div>
-                <button onclick="copyRoomCode()" title="Copiar código" class="w-7 h-7 rounded-xl bg-pink-400/30 hover:bg-pink-400/50 flex items-center justify-center text-xs text-white transition">
+                <button onclick="copyRoomCode()" title="Copiar código" class="w-6 h-6 rounded-xl bg-pink-400/30 hover:bg-pink-400/50 flex items-center justify-center text-[11px] text-white transition">
                     <i class="fa-regular fa-copy"></i>
                 </button>
             </div>
         </div>
     </header>
+
+    <!-- JANELINHA FLUTUANTE DE CHAT DA SALA -->
+    <aside id="chat-drawer" class="hidden fixed bottom-4 right-3 left-3 sm:left-auto sm:right-5 sm:w-96 z-40 glass-cute rounded-3xl border-2 border-pink-200/75 shadow-2xl overflow-hidden flex flex-col max-h-[68vh]">
+        <div class="bg-purple-950/85 px-4 py-3 border-b border-pink-200/30 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-xl bg-pink-500/40 border border-pink-200/50 flex items-center justify-center text-yellow-300 text-xs">
+                    <i class="fa-solid fa-comments"></i>
+                </span>
+                <div>
+                    <h3 class="font-display font-bold text-sm text-yellow-300 leading-tight">Chat do Camarim</h3>
+                    <span id="chat-room-subtitle" class="text-[10px] text-pink-200 block">Sala --- • Resenha ao vivo</span>
+                </div>
+            </div>
+            <button onclick="toggleChatDrawer(false)" class="w-7 h-7 rounded-full bg-white/15 hover:bg-white/30 text-white text-xs flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div id="chat-messages-list" class="chat-selectable flex-1 overflow-y-auto p-3.5 space-y-2.5 min-h-[210px] max-h-[320px] bg-purple-950/40">
+            <p class="text-xs text-pink-200/80 text-center py-8">
+                Nenhuma mensagem ainda. Mande um oi para a sala! 💬✨
+            </p>
+        </div>
+
+        <form onsubmit="sendChatMessage(event)" class="p-2.5 bg-purple-950/85 border-t border-pink-200/30 flex items-center gap-2">
+            <input type="text" id="input-chat-message" maxlength="160" placeholder="Escreva no chat da sala..."
+                class="flex-1 bg-white/15 border border-pink-200/50 focus:border-yellow-300 rounded-2xl px-3.5 py-2 text-xs text-white placeholder-pink-200/60 outline-none">
+            <button type="submit" class="btn-glam px-3.5 py-2 rounded-2xl font-extrabold text-xs text-white flex items-center gap-1 shrink-0">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </form>
+    </aside>
 
     <main class="content-layer w-full max-w-lg flex-1 flex flex-col justify-center">
 
@@ -316,7 +361,7 @@
             <div>
                 <h2 class="text-2xl sm:text-3xl font-bold text-white mb-1 drop-shadow">Pronto para desfilar?</h2>
                 <p class="text-sm text-pink-100">
-                    Envie até 5 fotos do seu look, vire um boneco animado e dispute o ranking com seus amigos!
+                    Envie até 5 fotos do seu look, salve seu desfile e dispute o ranking com seus amigos!
                 </p>
             </div>
 
@@ -347,7 +392,7 @@
                     </div>
                 </div>
                 <p id="profile-tag-hint" class="text-[11px] text-pink-200/85 ml-1">
-                    Se preencher Tag + PIN, o perfil fica reservado para você e pode ser aberto em outro aparelho.
+                    Se preencher Tag + PIN, o perfil fica reservado para você e evita duplicatas ao recarregar.
                 </p>
 
                 <div>
@@ -424,7 +469,7 @@
             </div>
         </section>
 
-        <!-- TELA 2: CAMARIM, BANCO DE TEMAS & ATÉ 5 FOTOS -->
+        <!-- TELA 2: CAMARIM, BANCO DE TEMAS & SEU LOOK E POSES -->
         <section id="screen-prep" class="hidden space-y-4">
             <div class="glass-cute rounded-3xl p-5 space-y-3.5">
                 <div class="flex items-start justify-between gap-2">
@@ -455,7 +500,6 @@
                     </div>
                 </div>
 
-                <!-- BOTÃO COMEÇAR RODADA (ANFITRIÃ) -->
                 <div id="start-round-box">
                     <button id="btn-start-round" onclick="startConfiguredRound()" class="w-full btn-gold py-3 rounded-2xl font-display font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2">
                         <i class="fa-solid fa-play"></i> Começar Rodada
@@ -486,7 +530,7 @@
             <div class="glass-cute rounded-3xl p-5 text-center space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="font-display font-bold text-lg text-white flex items-center gap-2">
-                        <span>🧸</span> Seu Boneco & Poses
+                        <span>👗</span> Seu Look e Poses
                     </h3>
                     <span id="upload-status-badge" class="text-xs font-extrabold px-3 py-1 rounded-full bg-white/15 text-pink-100 border border-white/30">
                         0 / 5 Fotos
@@ -499,7 +543,7 @@
                             <i class="fa-solid fa-camera-retro"></i>
                         </div>
                         <p class="text-sm text-pink-100 max-w-xs mx-auto font-medium">
-                            Adicione <b>até 5 fotos</b> (corpo inteiro, maquiagem, cabelo, sapato) para alternar as poses na passarela!
+                            Adicione <b>até 5 fotos</b> (corpo inteiro, maquiagem, cabelo, sapato) e salve seu desfile para passar na votação!
                         </p>
                     </div>
 
@@ -544,6 +588,10 @@
                         <input type="file" accept="image/*" multiple onchange="handlePhotoUpload(event)" class="hidden">
                     </label>
                 </div>
+
+                <button id="btn-save-look" onclick="saveLookForRunway()" class="w-full btn-gold py-3 rounded-2xl font-display font-bold text-sm tracking-wide flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check-circle"></i> Salvar Meu Desfile ✨
+                </button>
             </div>
 
             <div class="glass-cute rounded-3xl p-4 space-y-3">
@@ -560,7 +608,7 @@
                         </button>
                     </div>
                 </div>
-                <div id="players-list" class="flex gap-2.5 overflow-x-auto pb-1"></div>
+                <div id="players-list" class="flex gap-2.5 overflow-x-auto pb-1 pt-1"></div>
             </div>
 
             <div class="text-center">
@@ -568,23 +616,26 @@
             </div>
         </section>
 
-        <!-- TELA 3: A PASSARELA -->
+        <!-- TELA 3: A PASSARELA (DESFILE ASSÍNCRONO + VOTOS + COMENTÁRIOS NO LOOK) -->
         <section id="screen-runway" class="hidden space-y-4">
-            <div class="glass-cute rounded-3xl px-5 py-3 flex items-center justify-between">
-                <div>
+            <div class="glass-cute rounded-3xl px-5 py-3 flex items-center justify-between gap-2">
+                <div class="min-w-0">
                     <span id="runway-phase-subtitle" class="text-[10px] uppercase tracking-widest text-yellow-300 font-extrabold block">
-                        Desfile Oficial • Votação Ativa
+                        Desfile Oficial • Votação Assíncrona
                     </span>
-                    <h2 id="runway-theme-title" class="text-base sm:text-lg font-bold text-white truncate max-w-[210px] sm:max-w-xs">
+                    <h2 id="runway-theme-title" class="text-base sm:text-lg font-bold text-white truncate">
                         Tema do Dia
                     </h2>
+                    <span id="runway-vote-timer" class="text-[11px] font-mono font-bold text-pink-200 block">
+                        Votação aberta até às 21:30
+                    </span>
                 </div>
-                <div class="bg-pink-500/40 border border-pink-200/60 px-3 py-1 rounded-2xl text-xs font-extrabold text-white">
-                    Modelo <span id="runway-current-idx">1</span> / <span id="runway-total-count">1</span>
+                <div class="shrink-0 bg-pink-500/40 border border-pink-200/60 px-3 py-1.5 rounded-2xl text-xs font-extrabold text-white text-center">
+                    Look <span id="runway-current-idx">1</span> / <span id="runway-total-count">1</span>
                 </div>
             </div>
 
-            <div class="relative glass-cute rounded-3xl h-[410px] sm:h-[430px] overflow-hidden flex flex-col items-center justify-between p-4 border-2 border-pink-200/60">
+            <div class="relative glass-cute rounded-3xl min-h-[455px] overflow-hidden flex flex-col items-center justify-between p-4 border-2 border-pink-200/60">
                 <div class="spotlight -left-4 -rotate-12"></div>
                 <div class="spotlight -right-4 rotate-12"></div>
                 <div id="stage-flash" class="hidden absolute inset-0 bg-white z-30 pointer-events-none"></div>
@@ -600,8 +651,8 @@
                     </span>
                 </div>
 
-                <div class="relative z-20 my-auto w-full flex items-center justify-between px-1 sm:px-4">
-                    <button id="btn-prev-pose" onclick="changeRunwayPose(-1)" class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/35 border border-white/50 flex items-center justify-center text-white shadow-lg transition active:scale-90">
+                <div class="relative z-20 my-auto w-full flex items-center justify-between px-1 sm:px-4 py-2">
+                    <button id="btn-prev-pose" onclick="changeRunwayPose(-1)" title="Pose anterior deste look" class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/35 border border-white/50 flex items-center justify-center text-white shadow-lg transition active:scale-90">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
 
@@ -612,13 +663,14 @@
                         </div>
                     </div>
 
-                    <button id="btn-next-pose" onclick="changeRunwayPose(1)" class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/35 border border-white/50 flex items-center justify-center text-white shadow-lg transition active:scale-90">
+                    <button id="btn-next-pose" onclick="changeRunwayPose(1)" title="Próxima pose deste look" class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/35 border border-white/50 flex items-center justify-center text-white shadow-lg transition active:scale-90">
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
                 </div>
 
+                <!-- TODAS AS POSES DO PARTICIPANTE VISÍVEIS PARA NAVEGAR -->
                 <div class="z-20 flex flex-col items-center gap-2 w-full">
-                    <div id="runway-pose-dots" class="flex items-center justify-center gap-1.5"></div>
+                    <div id="runway-pose-thumbnails" class="flex items-center justify-center gap-1.5 flex-wrap"></div>
                     <button onclick="triggerModelPose()" class="bg-white/20 hover:bg-white/35 backdrop-blur-md border border-white/50 px-4 py-1 rounded-full text-xs font-extrabold text-white flex items-center gap-1.5 transition active:scale-95">
                         <i class="fa-solid fa-camera text-yellow-300"></i> Fazer Pose & Flashes!
                     </button>
@@ -627,7 +679,7 @@
                 <div class="runway-floor absolute bottom-0 left-0 right-0 h-32 z-10 pointer-events-none"></div>
             </div>
 
-            <div class="glass-cute rounded-3xl p-5 text-center space-y-3">
+            <div class="glass-cute rounded-3xl p-5 text-center space-y-3.5">
                 <p id="voting-instruction" class="text-sm font-bold text-white">
                     Toque nas estrelas para votar no look:
                 </p>
@@ -650,9 +702,44 @@
                     </button>
                 </div>
 
-                <div class="pt-1">
-                    <button id="btn-next-model" onclick="nextRunwayModel()" class="w-full btn-glam py-3.5 rounded-2xl font-display font-bold text-base text-white flex items-center justify-center gap-2">
+                <!-- CAMPO DE COMENTÁRIO NO LOOK (APARECE NO PÓDIO / RANKING) -->
+                <div id="look-comment-box" class="bg-purple-950/55 border border-pink-200/35 rounded-2xl p-3 text-left space-y-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <label for="input-look-comment" class="text-[11px] font-extrabold uppercase tracking-wider text-pink-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-comment-dots text-yellow-300"></i>
+                            <span id="look-comment-label">Deixe um recado sobre este look (vai pro ranking):</span>
+                        </label>
+                        <button id="btn-delete-look-comment" type="button" onclick="deleteLookComment()" class="hidden text-[10px] font-bold text-rose-300 hover:underline">
+                            Apagar
+                        </button>
+                    </div>
+                    <form onsubmit="saveLookComment(event)" class="flex items-center gap-2">
+                        <input type="text" id="input-look-comment" maxlength="140" placeholder="Ex: Amei a composição da Pose #2! ✨"
+                            class="flex-1 bg-white/15 border border-pink-200/50 focus:border-yellow-300 rounded-xl px-3 py-2 text-xs text-white placeholder-pink-200/55 outline-none">
+                        <button type="submit" class="btn-gold px-3.5 py-2 rounded-xl font-extrabold text-xs shrink-0">
+                            Salvar
+                        </button>
+                    </form>
+                    <p id="look-comment-saved-preview" class="hidden text-[11px] text-emerald-200 font-semibold"></p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5 pt-1">
+                    <button id="btn-prev-model" onclick="prevRunwayModel()" class="glass-card-light hover:bg-white/25 py-3.5 px-3 rounded-2xl font-display font-bold text-sm text-white flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Ver Look Anterior
+                    </button>
+
+                    <button id="btn-next-model" onclick="nextRunwayModel()" class="btn-glam py-3.5 px-3 rounded-2xl font-display font-bold text-sm text-white flex items-center justify-center gap-1.5">
                         Próximo Look <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/15">
+                    <button onclick="backToDressingRoom()" class="text-xs font-bold text-pink-200 hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-shirt"></i> Voltar ao Meu Look
+                    </button>
+
+                    <button id="btn-host-finish-voting" onclick="hostFinishVotingNow()" class="hidden text-xs font-extrabold text-yellow-300 hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-crown"></i> Encerrar Votação & Abrir Pódio
                     </button>
                 </div>
             </div>
@@ -662,7 +749,7 @@
             </div>
         </section>
 
-        <!-- TELA 4: PÓDIO DA RODADA + RANKING GERAL -->
+        <!-- TELA 4: PÓDIO DA RODADA + RANKING GERAL + COMENTÁRIOS DOS LOOKS -->
         <section id="screen-podium" class="hidden space-y-4 text-center">
             <div class="glass-cute rounded-3xl p-6 relative overflow-hidden">
                 <span class="inline-block bg-yellow-300/25 border border-yellow-300 text-yellow-200 text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full mb-2">
@@ -674,16 +761,16 @@
                 <div id="podium-stage" class="flex items-end justify-center gap-2 sm:gap-4 pt-6 pb-2 min-h-[270px]"></div>
             </div>
 
-            <div class="glass-cute rounded-3xl p-4 text-left space-y-2">
+            <div class="glass-cute rounded-3xl p-4 text-left space-y-2.5">
                 <div class="flex items-center justify-between px-1">
                     <h3 class="text-xs font-extrabold uppercase tracking-wider text-pink-200">
-                        Notas desta Rodada
+                        Notas & Comentários desta Rodada
                     </h3>
                     <span class="text-[11px] font-bold text-yellow-300">
-                        +Pontos somados ao Ranking Geral!
+                        +Pontos no Ranking!
                     </span>
                 </div>
-                <div id="full-ranking-list" class="space-y-2"></div>
+                <div id="full-ranking-list" class="space-y-2.5"></div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -818,7 +905,7 @@
     <!-- SCRIPT DO JOGO COM FIREBASE REALTIME DATABASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getDatabase, ref, set, get, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
         // ==========================================
         // EFEITO DE GLITTER ANIMADO NO FUNDO
@@ -909,6 +996,7 @@
             {
                 id: "bot_luna",
                 name: "Luna Glam ✨",
+                sampleComment: "Serviu muito conceito nesse look!! 💅✨",
                 photos: [
                     `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect width="200" height="260" fill="%23fce7f3"/><circle cx="100" cy="70" r="38" fill="%23fed7aa"/><path d="M60 65 Q100 10 140 65 Q150 130 135 140 Q100 110 65 140 Q50 130 60 65" fill="%234a044e"/><circle cx="88" cy="68" r="4" fill="%23000"/><circle cx="112" cy="68" r="4" fill="%23000"/><path d="M92 84 Q100 92 108 84" stroke="%23db2777" stroke-width="3" fill="none"/><path d="M65 115 L135 115 L155 230 L45 230 Z" fill="%23ff2a85"/><text x="100" y="248" font-size="12" fill="%23831843" font-family="sans-serif" font-weight="bold" text-anchor="middle">POSE 1: LOOK COMPLETO</text></svg>`,
                     `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect width="200" height="260" fill="%23fdf2f8"/><circle cx="100" cy="115" r="65" fill="%23fed7aa"/><path d="M35 100 Q100 15 165 100 Q175 180 155 195 Q100 155 45 195 Q25 180 35 100" fill="%234a044e"/><circle cx="78" cy="112" r="7" fill="%23000"/><circle cx="122" cy="112" r="7" fill="%23000"/><circle cx="65" cy="130" r="10" fill="%23f472b6" opacity="0.6"/><circle cx="135" cy="130" r="10" fill="%23f472b6" opacity="0.6"/><path d="M85 142 Q100 156 115 142" stroke="%23db2777" stroke-width="4" fill="none"/><text x="100" y="245" font-size="12" fill="%23831843" font-family="sans-serif" font-weight="bold" text-anchor="middle">POSE 2: CLOSE MAKE ✨</text></svg>`
@@ -917,6 +1005,7 @@
             {
                 id: "bot_enzo",
                 name: "Enzo Drip 🔥",
+                sampleComment: "5 estrelas fácil, combinação impecável 🔥",
                 photos: [
                     `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect width="200" height="260" fill="%23dbeafe"/><circle cx="100" cy="72" r="36" fill="%23f5d0a9"/><path d="M64 58 Q100 22 136 58 Z" fill="%231e1b4b"/><rect x="74" y="62" width="22" height="12" rx="3" fill="%23000"/><rect x="104" y="62" width="22" height="12" rx="3" fill="%23000"/><path d="M58 115 L142 115 L148 230 L52 230 Z" fill="%231d4ed8"/><text x="100" y="248" font-size="12" fill="%231e3a8a" font-family="sans-serif" font-weight="bold" text-anchor="middle">POSE 1: OUTFIT DRIP</text></svg>`
                 ]
@@ -924,13 +1013,13 @@
             {
                 id: "bot_chloe",
                 name: "Chloé Y2K 💖",
+                sampleComment: "Icônica! Amei a pose na passarela 💖👑",
                 photos: [
                     `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect width="200" height="260" fill="%23f3e8ff"/><circle cx="100" cy="72" r="37" fill="%23ffedd5"/><circle cx="62" cy="52" r="18" fill="%23facc15"/><circle cx="138" cy="52" r="18" fill="%23facc15"/><path d="M64 68 Q100 25 136 68" fill="%23facc15"/><circle cx="88" cy="70" r="4" fill="%23000"/><circle cx="112" cy="70" r="4" fill="%23000"/><path d="M68 115 L132 115 L150 230 L50 230 Z" fill="%239333ea"/><text x="100" y="248" font-size="12" fill="%23581c87" font-family="sans-serif" font-weight="bold" text-anchor="middle">POSE 1: ESTILO Y2K</text></svg>`
                 ]
             }
         ];
 
-        // Configuração do Firebase Realtime Database[cite: 5]
         const firebaseConfig = {
             apiKey: "AIzaSyAeUrLzzs7JFEJJkBrvVKq1CcZ7ox16JVU",
             authDomain: "dti-real-life-bb583.firebaseapp.com",
@@ -975,7 +1064,13 @@
             runwayIndex: 0,
             runwayPoseIndex: 0,
             selectedVote: 0,
-            isBotDemo: false
+            isBotDemo: false,
+            activeScreen: 'login',
+            chatOpen: false,
+            chatMessages: [],
+            unreadChatCount: 0,
+            lastChatSentAt: 0,
+            expandedPodiumComments: {}
         };
 
         function isHost() {
@@ -983,15 +1078,23 @@
             return state.hostId === state.userId;
         }
 
-        // Monitora status real da conexão com o Realtime Database[cite: 5]
+        function escapeHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         onValue(ref(db, '.info/connected'), (snap) => {
             const label = document.getElementById('online-status-label');
             if (snap.val() === true) {
                 label.textContent = "🟢 Online • Firebase Conectado";
-                label.className = "text-[11px] font-extrabold uppercase tracking-widest text-emerald-300 block -mt-0.5";
+                label.className = "text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-emerald-300 block -mt-0.5 truncate";
             } else {
                 label.textContent = "🟠 Aguardando Realtime DB...";
-                label.className = "text-[11px] font-extrabold uppercase tracking-widest text-yellow-200 block -mt-0.5";
+                label.className = "text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-yellow-200 block -mt-0.5 truncate";
             }
         });
 
@@ -1015,12 +1118,171 @@
         };
 
         function switchScreen(screenName) {
+            state.activeScreen = screenName;
             ['screen-login', 'screen-prep', 'screen-runway', 'screen-podium'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
             document.getElementById(`screen-${screenName}`).classList.remove('hidden');
         }
 
+        // ==========================================
+        // JANELINHA DE CHAT DA SALA
+        // ==========================================
+        window.toggleChatDrawer = function(forceState) {
+            state.chatOpen = typeof forceState === 'boolean' ? forceState : !state.chatOpen;
+            const drawer = document.getElementById('chat-drawer');
+            if (state.chatOpen) {
+                drawer.classList.remove('hidden');
+                state.unreadChatCount = 0;
+                updateChatUnreadBadge();
+                renderChatMessages(true);
+                setTimeout(() => {
+                    const input = document.getElementById('input-chat-message');
+                    if (input) input.focus();
+                }, 80);
+            } else {
+                drawer.classList.add('hidden');
+            }
+        };
+
+        function updateChatUnreadBadge() {
+            const badge = document.getElementById('chat-unread-badge');
+            if (!badge) return;
+            if (state.unreadChatCount > 0 && !state.chatOpen) {
+                badge.textContent = state.unreadChatCount > 9 ? '9+' : String(state.unreadChatCount);
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function renderChatMessages(scrollToBottom = false) {
+            const listEl = document.getElementById('chat-messages-list');
+            const subEl = document.getElementById('chat-room-subtitle');
+            if (subEl) {
+                subEl.textContent = `Sala ${state.roomCode || '---'} • Resenha ao vivo`;
+            }
+            if (!listEl) return;
+
+            if (!state.chatMessages || state.chatMessages.length === 0) {
+                listEl.innerHTML = `
+                    <p class="text-xs text-pink-200/80 text-center py-8">
+                        Nenhuma mensagem ainda. Mande um oi para a sala! 💬✨
+                    </p>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = state.chatMessages.map(msg => {
+                const isMine = msg.senderId === state.userId;
+                const timeStr = msg.timestamp
+                    ? new Date(msg.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+                    : '';
+                return `
+                    <div class="flex flex-col ${isMine ? 'items-end' : 'items-start'}">
+                        <div class="max-w-[85%] rounded-2xl px-3 py-2 ${isMine
+                            ? 'bg-gradient-to-r from-pink-500/80 to-fuchsia-500/80 border border-pink-200/70 text-white rounded-br-sm'
+                            : 'bg-white/15 border border-white/25 text-white rounded-bl-sm'} shadow">
+                            <div class="flex items-center justify-between gap-2 mb-0.5">
+                                <span class="text-[10px] font-extrabold ${isMine ? 'text-yellow-200' : 'text-pink-200'}">
+                                    ${escapeHtml(msg.senderName || 'Modelo')}
+                                </span>
+                                <span class="text-[9px] text-white/65">${timeStr}</span>
+                            </div>
+                            <p class="text-xs leading-snug break-words">${escapeHtml(msg.text)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (scrollToBottom) {
+                listEl.scrollTop = listEl.scrollHeight;
+            }
+        }
+
+        window.sendChatMessage = async function(event) {
+            if (event) event.preventDefault();
+            const input = document.getElementById('input-chat-message');
+            if (!input) return;
+            const rawText = input.value.trim();
+            if (!rawText) return;
+
+            const now = Date.now();
+            if (now - state.lastChatSentAt < 900) {
+                showToast("⏳ Calma, diva! Espere um segundinho para mandar outra mensagem.");
+                return;
+            }
+            state.lastChatSentAt = now;
+
+            const cleanText = rawText.slice(0, 160);
+            input.value = '';
+
+            const msgObj = {
+                senderId: state.userId,
+                senderName: state.playerName || 'Estrela VIP',
+                text: cleanText,
+                timestamp: now
+            };
+
+            if (state.isBotDemo || !state.roomCode) {
+                state.chatMessages.push(msgObj);
+                if (state.chatMessages.length > 50) {
+                    state.chatMessages = state.chatMessages.slice(-50);
+                }
+                renderChatMessages(true);
+                return;
+            }
+
+            try {
+                const chatRef = ref(db, `rooms/${state.roomCode}/chat`);
+                await push(chatRef, msgObj);
+
+                // Mantém apenas as últimas 50 mensagens no banco
+                const snap = await get(chatRef);
+                if (snap.exists()) {
+                    const entries = Object.entries(snap.val());
+                    if (entries.length > 50) {
+                        const toRemove = entries.slice(0, entries.length - 50);
+                        for (const [oldKey] of toRemove) {
+                            await remove(ref(db, `rooms/${state.roomCode}/chat/${oldKey}`));
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Erro ao enviar mensagem no chat:", err);
+                showToast("⚠️ Não foi possível enviar a mensagem agora.");
+            }
+        };
+
+        function attachChatListener(roomCode) {
+            const chatRef = ref(db, `rooms/${roomCode}/chat`);
+            let initialized = false;
+            onValue(chatRef, (snap) => {
+                const val = snap.val();
+                const list = val
+                    ? Object.entries(val)
+                        .map(([key, item]) => ({ id: key, ...item }))
+                        .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0))
+                    : [];
+
+                const prevLen = state.chatMessages.length;
+                state.chatMessages = list;
+
+                if (initialized && list.length > prevLen) {
+                    const newest = list[list.length - 1];
+                    if (newest && newest.senderId !== state.userId && !state.chatOpen) {
+                        state.unreadChatCount += (list.length - prevLen);
+                        updateChatUnreadBadge();
+                    }
+                }
+                initialized = true;
+                renderChatMessages(state.chatOpen);
+            });
+        }
+
+        // ==========================================
+        // FOTO DE PERFIL & PERFIL LEVE (TAG + PIN)
+        // ==========================================
         function compressImageDataUrl(dataUrl, maxW, quality, callback) {
             const img = new Image();
             img.onload = function() {
@@ -1068,7 +1330,6 @@
             }
         }
 
-        // Verifica na tela inicial se o código da sala já existe no Firebase
         let roomCheckTimer = null;
         window.updateHostSetupVisibility = function() {
             const code = document.getElementById('input-room-code').value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
@@ -1138,7 +1399,7 @@
                     const saved = snap.val();
                     if (saved.pin) {
                         if (cleanPin !== String(saved.pin)) {
-                            showToast(`🔒 A tag <b>${cleanTag}</b> já está reservada! Digite o PIN correto de 4 dígitos.`);
+                            showToast(`🔒 A tag <b>${escapeHtml(cleanTag)}</b> já está reservada! Digite o PIN correto de 4 dígitos.`);
                             return { ok: false };
                         }
                     } else if (cleanPin) {
@@ -1264,7 +1525,7 @@
             const awards = p.awards && p.awards.length > 0 ? p.awards : ["Pronta para Desfilar ✨"];
             awardsEl.innerHTML = awards.map(a => `
                 <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-yellow-300/20 border border-yellow-300/60 text-yellow-200">
-                    ${a}
+                    ${escapeHtml(a)}
                 </span>
             `).join('');
 
@@ -1275,8 +1536,8 @@
                 roomsEl.innerHTML = rooms.map(r => `
                     <div class="flex items-center justify-between bg-white/10 border border-white/20 rounded-2xl px-3.5 py-2.5">
                         <div>
-                            <p class="text-xs font-extrabold text-white">Sala ${r.roomCode} • ${r.theme}</p>
-                            <span class="text-[10px] text-pink-200">${r.date}</span>
+                            <p class="text-xs font-extrabold text-white">Sala ${escapeHtml(r.roomCode)} • ${escapeHtml(r.theme)}</p>
+                            <span class="text-[10px] text-pink-200">${escapeHtml(r.date)}</span>
                         </div>
                         <div class="text-right">
                             <span class="text-xs font-extrabold text-yellow-300 block">#${r.rank} lugar</span>
@@ -1353,12 +1614,11 @@
             const chosenEndTime = document.getElementById('input-end-time').value || '21:30';
 
             document.getElementById('header-room-code').textContent = state.roomCode;
-            document.getElementById('room-badge').classList.remove('hidden');
-            document.getElementById('room-badge').classList.add('flex');
-            document.getElementById('btn-header-ranking').classList.remove('hidden');
-            document.getElementById('btn-header-ranking').classList.add('flex');
-            document.getElementById('btn-header-profile').classList.remove('hidden');
-            document.getElementById('btn-header-profile').classList.add('flex');
+            ['room-badge', 'btn-header-ranking', 'btn-header-profile', 'btn-header-chat'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('hidden');
+                el.classList.add('flex');
+            });
 
             const initialPhotos = state.profilePhoto ? [state.profilePhoto] : [];
             const myPlayer = {
@@ -1367,9 +1627,11 @@
                 tag: state.profileTag || '',
                 avatar: state.profilePhoto || null,
                 photos: initialPhotos,
+                lookSaved: initialPhotos.length > 0,
                 anim: 'anim-walk',
                 toonFilter: true,
-                votes: {}
+                votes: {},
+                comments: {}
             };
 
             state.players = { [state.userId]: myPlayer };
@@ -1387,18 +1649,29 @@
                         name: bot.name,
                         avatar: bot.photos[0],
                         photos: [...bot.photos],
+                        lookSaved: true,
                         anim: 'anim-walk',
                         toonFilter: true,
-                        votes: {}
+                        votes: {},
+                        comments: {}
                     };
                     ensurePlayerInSeasonStats(bot.name, bot.photos[0]);
                 });
+                state.chatMessages = [
+                    {
+                        senderId: 'bot_luna',
+                        senderName: 'Luna Glam ✨',
+                        text: 'Oi gente!! Já estou separando os acessórios 💖',
+                        timestamp: Date.now() - 60000
+                    }
+                ];
                 state.roundsPlayed = 1;
                 state.seasonStats["luna glam ✨"].wins = 1;
                 state.seasonStats["luna glam ✨"].seasonPoints = 3;
                 state.seasonStats["luna glam ✨"].totalStars = 14;
                 state.seasonStats["enzo drip 🔥"].seasonPoints = 2;
                 state.seasonStats["enzo drip 🔥"].totalStars = 11;
+                renderChatMessages(false);
                 renderPrepScreen();
                 switchScreen('prep');
                 showToast("💖 Modo Teste ativado! Você é a anfitriã.", "gold");
@@ -1453,17 +1726,54 @@
                     state.prepEndsAt = data.prepEndsAt || null;
                     state.voteEndsAt = data.voteEndsAt || null;
 
-                    const updatedPlayers = data.players || {};
-                    if (!updatedPlayers[state.userId]) {
+                    const existingPlayers = data.players || {};
+                    const myTagKey = normalizeTagKey(state.profileTag || '');
+                    const myNameKey = state.playerName.trim().toLowerCase();
+
+                    const existingMatch = Object.values(existingPlayers).find(p => {
+                        if (!p || !p.id) return false;
+                        if (myTagKey && p.tag && normalizeTagKey(p.tag) === myTagKey) return true;
+                        return p.name && p.name.trim().toLowerCase() === myNameKey;
+                    });
+
+                    if (existingMatch) {
+                        const wasHost = data.hostId === existingMatch.id;
+                        state.userId = existingMatch.id;
+                        if (wasHost) state.hostId = state.userId;
+
+                        const mergedPlayer = {
+                            ...existingMatch,
+                            id: state.userId,
+                            name: state.playerName || existingMatch.name,
+                            tag: state.profileTag || existingMatch.tag || '',
+                            avatar: state.profilePhoto || existingMatch.avatar || null,
+                            photos: (existingMatch.photos && existingMatch.photos.length > 0)
+                                ? existingMatch.photos
+                                : myPlayer.photos
+                        };
+
+                        await update(ref(db, `rooms/${state.roomCode}/players/${state.userId}`), mergedPlayer);
+                        showToast(`💖 Bem-vinda de volta, <b>${escapeHtml(mergedPlayer.name)}</b>! Seu look foi recuperado.`, "success");
+                    } else {
                         await update(ref(db, `rooms/${state.roomCode}/players`), {
                             [state.userId]: myPlayer
                         });
                     }
                 }
 
+                attachChatListener(state.roomCode);
+
                 onValue(roomRef, (docSnap) => {
                     const data = docSnap.val();
                     if (!data) return;
+
+                    const prevPlayers = data.players || {};
+                    if (state.activeScreen !== 'login' && !prevPlayers[state.userId]) {
+                        showToast("⚠️ Você foi removida desta sala pela anfitriã.");
+                        switchScreen('login');
+                        return;
+                    }
+
                     state.hostId = data.hostId || state.hostId;
                     state.roundStarted = Boolean(data.roundStarted);
                     state.prepDays = data.prepDays || state.prepDays;
@@ -1473,7 +1783,7 @@
                     state.voteEndsAt = data.voteEndsAt || null;
                     state.currentTheme = data.currentTheme || state.currentTheme;
                     state.themeBank = Array.isArray(data.themeBank) && data.themeBank.length > 0 ? data.themeBank : DEFAULT_THEME_BANK;
-                    state.players = data.players || {};
+                    state.players = prevPlayers;
                     state.seasonStats = data.seasonStats || {};
                     state.roundsPlayed = data.roundsPlayed || 0;
 
@@ -1488,16 +1798,36 @@
                             renderPrepScreen();
                             switchScreen('prep');
                         }
-                    } else if (state.phase === 'prep') {
+                    } else if (state.activeScreen === 'prep') {
                         renderPrepScreen();
+                    } else if (state.activeScreen === 'runway') {
+                        const playersArr = Object.values(state.players);
+                        if (state.runwayIndex >= playersArr.length) {
+                            state.runwayIndex = Math.max(0, playersArr.length - 1);
+                        }
+                        showCurrentRunwayModel(false);
+                    } else if (state.activeScreen === 'podium') {
+                        renderPodiumScreen(false);
                     }
                 });
 
-                renderPrepScreen();
-                switchScreen('prep');
+                const initialSnap = await get(roomRef);
+                const latestData = initialSnap.val() || {};
+                state.phase = latestData.phase || 'prep';
+                state.players = latestData.players || state.players;
+
+                if (state.phase === 'runway') {
+                    startRunwayUI();
+                } else if (state.phase === 'podium') {
+                    renderPodiumScreen();
+                    switchScreen('podium');
+                } else {
+                    renderPrepScreen();
+                    switchScreen('prep');
+                }
             } catch (err) {
                 console.error("Erro Firebase:", err);
-                showToast("⚠️ Verifique se o Realtime Database foi criado no Firebase.");
+                showToast("⚠️ Verifique a conexão com o Realtime Database.");
                 renderPrepScreen();
                 switchScreen('prep');
             }
@@ -1533,36 +1863,47 @@
             tempInput.select();
             document.execCommand('copy');
             document.body.removeChild(tempInput);
-            showToast(`📋 Código <b>${state.roomCode}</b> copiado!`, "success");
+            showToast(`📋 Código <b>${escapeHtml(state.roomCode)}</b> copiado!`, "success");
         };
 
-        function updateRoundCountdown() {
-            const labelEl = document.getElementById('countdown-label');
-            const timerEl = document.getElementById('countdown-timer');
-            if (!timerEl || !labelEl) return;
-
-            labelEl.textContent = `Montar looks até às ${state.endTime || '21:30'}`;
-
-            if (!state.roundStarted || !state.prepEndsAt) {
-                timerEl.textContent = "Aguardando início da rodada";
-                return;
-            }
-
-            const diff = state.prepEndsAt - Date.now();
-            if (diff <= 0) {
-                timerEl.textContent = "00d 00h 00m 00s • Tempo encerrado!";
-                return;
-            }
-
+        function formatRemainingTime(targetTs) {
+            const diff = targetTs - Date.now();
+            if (diff <= 0) return null;
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const secs = Math.floor((diff % (1000 * 60)) / 1000);
             const pad = (n) => String(n).padStart(2, '0');
-
-            timerEl.textContent = days > 0
+            return days > 0
                 ? `${days}d ${pad(hours)}h ${pad(mins)}m ${pad(secs)}s`
                 : `${pad(hours)}h ${pad(mins)}m ${pad(secs)}s`;
+        }
+
+        function updateRoundCountdown() {
+            const labelEl = document.getElementById('countdown-label');
+            const timerEl = document.getElementById('countdown-timer');
+            const voteTimerEl = document.getElementById('runway-vote-timer');
+
+            if (labelEl && timerEl) {
+                labelEl.textContent = `Montar looks até às ${state.endTime || '21:30'}`;
+                if (!state.roundStarted || !state.prepEndsAt) {
+                    timerEl.textContent = "Aguardando início da rodada";
+                } else {
+                    const formatted = formatRemainingTime(state.prepEndsAt);
+                    timerEl.textContent = formatted || "00h 00m 00s • Tempo encerrado!";
+                }
+            }
+
+            if (voteTimerEl) {
+                if (state.voteEndsAt) {
+                    const formattedVote = formatRemainingTime(state.voteEndsAt);
+                    voteTimerEl.textContent = formattedVote
+                        ? `Votação aberta: ${formattedVote} (encerra às ${state.endTime})`
+                        : `Período de votação encerrado!`;
+                } else {
+                    voteTimerEl.textContent = `Votação assíncrona (${state.voteDays}d) • Encerra às ${state.endTime}`;
+                }
+            }
         }
         setInterval(updateRoundCountdown, 1000);
 
@@ -1581,7 +1922,7 @@
             const randomIndex = Math.floor(Math.random() * state.themeBank.length);
             state.currentTheme = state.themeBank[randomIndex];
             renderPrepScreen();
-            showToast(`🎲 Sorteado: <b>${state.currentTheme.text}</b>`, "gold");
+            showToast(`🎲 Sorteado: <b>${escapeHtml(state.currentTheme.text)}</b>`, "gold");
             await pushStateToCloud();
         };
 
@@ -1625,7 +1966,7 @@
             input.value = '';
             renderThemeBankList();
             renderPrepScreen();
-            showToast(`💡 Tema <b>"${val}"</b> adicionado ao banco de sorteio!`, "success");
+            showToast(`💡 Tema <b>"${escapeHtml(val)}"</b> adicionado ao banco de sorteio!`, "success");
             await pushStateToCloud();
         };
 
@@ -1642,7 +1983,7 @@
                 state.currentTheme = state.themeBank[index];
                 closeThemeBankModal();
                 renderPrepScreen();
-                showToast(`✨ Tema fixado: <b>${state.currentTheme.text}</b>`);
+                showToast(`✨ Tema fixado: <b>${escapeHtml(state.currentTheme.text)}</b>`);
                 await pushStateToCloud();
             }
         };
@@ -1654,8 +1995,8 @@
             grid.innerHTML = state.themeBank.map((item, idx) => `
                 <div class="flex items-center justify-between gap-2 bg-white/10 hover:bg-pink-500/25 border border-white/20 rounded-2xl px-3.5 py-2.5">
                     <div>
-                        <p class="text-sm font-bold text-white">${item.text}</p>
-                        <span class="text-[10px] font-semibold text-yellow-200">${item.author}</span>
+                        <p class="text-sm font-bold text-white">${escapeHtml(item.text)}</p>
+                        <span class="text-[10px] font-semibold text-yellow-200">${escapeHtml(item.author)}</span>
                     </div>
                     ${canPick
                         ? `<button onclick="selectSpecificTheme(${idx})" class="shrink-0 bg-pink-500/50 hover:bg-pink-500 border border-pink-200/50 px-3 py-1.5 rounded-xl text-xs font-extrabold text-white">Usar</button>`
@@ -1687,6 +2028,7 @@
                     compressImageDataUrl(e.target.result, 360, 0.72, async (compressedDataUrl) => {
                         me.photos.push(compressedDataUrl);
                         if (!me.avatar) me.avatar = compressedDataUrl;
+                        me.lookSaved = true;
                         state.selectedPreviewPoseIdx = me.photos.length - 1;
 
                         ensurePlayerInSeasonStats(me.name, me.photos[0]);
@@ -1694,7 +2036,7 @@
                         processedCount++;
                         if (processedCount === filesToProcess.length) {
                             renderPrepScreen();
-                            showToast(`📸 Pose ${me.photos.length}/5 adicionada ao seu boneco!`, "gold");
+                            showToast(`📸 Pose ${me.photos.length}/5 salva no seu desfile!`, "gold");
                             await pushStateToCloud();
                         }
                     });
@@ -1703,6 +2045,22 @@
             });
 
             event.target.value = '';
+        };
+
+        window.saveLookForRunway = async function() {
+            const me = state.players[state.userId];
+            if (!me || !me.photos || me.photos.length === 0) {
+                showToast("📸 Adicione pelo menos 1 foto antes de salvar seu desfile!");
+                return;
+            }
+            me.lookSaved = true;
+            renderPrepScreen();
+            await pushStateToCloud();
+            showToast(`✅ Desfile salvo com ${me.photos.length} pose(s)! Ficará passando durante toda a votação.`, "gold");
+
+            if (state.phase === 'runway') {
+                startRunwayUI();
+            }
         };
 
         window.selectPreviewPose = function(idx) {
@@ -1714,6 +2072,7 @@
             event.stopPropagation();
             const me = state.players[state.userId];
             me.photos.splice(idx, 1);
+            me.lookSaved = me.photos.length > 0;
             if (state.selectedPreviewPoseIdx >= me.photos.length) {
                 state.selectedPreviewPoseIdx = Math.max(0, me.photos.length - 1);
             }
@@ -1737,6 +2096,33 @@
             await pushStateToCloud();
         };
 
+        window.removePlayerFromRoom = async function(targetId, event) {
+            if (event) event.stopPropagation();
+            if (!isHost()) {
+                showToast("👑 Apenas a anfitriã pode remover participantes da sala.");
+                return;
+            }
+            if (targetId === state.userId) return;
+
+            const target = state.players[targetId];
+            if (!target) return;
+
+            const confirmed = window.confirm(`Remover "${target.name}" desta sala?`);
+            if (!confirmed) return;
+
+            delete state.players[targetId];
+            renderPrepScreen();
+
+            if (!state.isBotDemo && state.roomCode) {
+                try {
+                    await remove(ref(db, `rooms/${state.roomCode}/players/${targetId}`));
+                } catch (err) {
+                    console.error("Erro ao remover participante:", err);
+                }
+            }
+            showToast(`🗑️ <b>${escapeHtml(target.name)}</b> foi removida da sala.`, "success");
+        };
+
         window.addSimulatedFriend = function() {
             const available = BOT_PROFILES.filter(b => !state.players[b.id]);
             if (available.length === 0) {
@@ -1749,9 +2135,11 @@
                 name: bot.name,
                 avatar: bot.photos[0],
                 photos: [...bot.photos],
+                lookSaved: true,
                 anim: 'anim-walk',
                 toonFilter: true,
-                votes: {}
+                votes: {},
+                comments: {}
             };
             ensurePlayerInSeasonStats(bot.name, bot.photos[0]);
             renderPrepScreen();
@@ -1774,7 +2162,6 @@
             document.getElementById('round-schedule-summary').textContent =
                 `${state.prepDays}d para montar looks • ${state.voteDays}d de votação • Encerra às ${state.endTime}`;
 
-            // Botão Sortear: só aparece para anfitriã enquanto a rodada não começou
             const spinBtn = document.getElementById('btn-spin-theme');
             if (host && !started) {
                 spinBtn.classList.remove('hidden');
@@ -1784,7 +2171,6 @@
                 spinBtn.classList.remove('flex');
             }
 
-            // Botão Começar Rodada: anfitriã pode clicar a qualquer hora; não-anfitriã vê "Aguardando início da rodada" em cinza azulado
             const startRoundBox = document.getElementById('start-round-box');
             if (started) {
                 startRoundBox.innerHTML = `
@@ -1806,12 +2192,19 @@
                 `;
             }
 
-            // Botão Hora do Show! Desfile 👠: anfitriã pode liberar a qualquer hora; não-anfitriã vê cinza azulado antes do início
             const showBtn = document.getElementById('btn-show-time');
-            if (host || started) {
+            if (state.phase === 'runway') {
+                showBtn.disabled = false;
+                showBtn.className = "w-full sm:w-auto btn-glam px-4 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer";
+                showBtn.innerHTML = `Ir para a Passarela 👠`;
+            } else if (host) {
                 showBtn.disabled = false;
                 showBtn.className = "w-full sm:w-auto btn-glam px-4 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer";
                 showBtn.innerHTML = `Hora do Show! Desfile 👠`;
+            } else if (started) {
+                showBtn.disabled = true;
+                showBtn.className = "w-full sm:w-auto btn-waiting-slate px-4 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5";
+                showBtn.innerHTML = `Salve seu desfile ✨`;
             } else {
                 showBtn.disabled = true;
                 showBtn.className = "w-full sm:w-auto btn-waiting-slate px-4 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5";
@@ -1822,9 +2215,19 @@
 
             const me = state.players[state.userId];
             const photos = (me && me.photos) ? me.photos : [];
+            const isSaved = Boolean(me && me.lookSaved && photos.length > 0);
 
             const badge = document.getElementById('upload-status-badge');
-            badge.textContent = `${photos.length} / 5 Fotos`;
+            badge.textContent = isSaved
+                ? `${photos.length} / 5 • Salvo ✅`
+                : `${photos.length} / 5 Fotos`;
+
+            const saveBtn = document.getElementById('btn-save-look');
+            if (isSaved) {
+                saveBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Desfile Salvo (${photos.length} pose${photos.length > 1 ? 's' : ''}) • Atualizar`;
+            } else {
+                saveBtn.innerHTML = `<i class="fa-solid fa-check-circle"></i> Salvar Meu Desfile ✨`;
+            }
 
             if (photos.length > 0) {
                 document.getElementById('doll-empty-state').classList.add('hidden');
@@ -1863,27 +2266,40 @@
                 const pPhotos = p.photos || [];
                 const displayThumb = pPhotos[0] || p.avatar || '';
                 const isRoomHost = p.id === state.hostId;
+                const canRemove = host && p.id !== state.userId;
                 return `
                     <div class="shrink-0 bg-purple-950/65 border ${pPhotos.length > 0 ? 'border-emerald-300/60' : 'border-pink-200/35'} rounded-2xl p-2.5 w-24 text-center relative">
-                        ${isRoomHost ? '<span class="absolute -top-1.5 right-1.5 text-xs" title="Anfitriã">👑</span>' : ''}
+                        ${isRoomHost ? '<span class="absolute -top-1.5 left-1.5 text-xs" title="Anfitriã">👑</span>' : ''}
+                        ${canRemove
+                            ? `<button onclick="removePlayerFromRoom('${p.id}', event)" title="Remover ${escapeHtml(p.name)} da sala" class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rose-600 hover:bg-rose-500 border border-white text-white text-[10px] font-extrabold flex items-center justify-center shadow z-10">×</button>`
+                            : ''
+                        }
                         <div class="w-12 h-12 mx-auto rounded-full overflow-hidden bg-pink-400/25 border-2 border-white mb-1.5 flex items-center justify-center">
                             ${displayThumb
                                 ? `<img src="${displayThumb}" class="w-full h-full object-cover">`
                                 : `<span class="text-lg">👗</span>`
                             }
                         </div>
-                        <p class="text-xs font-bold text-white truncate">${p.name}</p>
-                        <span class="text-[10px] ${pPhotos.length > 0 ? 'text-yellow-300' : 'text-pink-200'} font-bold">
-                            ${pPhotos.length > 0 ? `${pPhotos.length} pose(s) ✨` : 'Vestindo...'}
+                        <p class="text-xs font-bold text-white truncate">${escapeHtml(p.name)}</p>
+                        <span class="text-[10px] ${pPhotos.length > 0 ? 'text-yellow-300' : 'text-pink-200'} font-bold block">
+                            ${pPhotos.length > 0 ? `${pPhotos.length} pose(s) ✅` : 'Vestindo...'}
                         </span>
                     </div>
                 `;
             }).join('');
         }
 
+        // ==========================================
+        // PASSARELA ASSÍNCRONA, VOTOS & COMENTÁRIOS
+        // ==========================================
         window.triggerRunwayPhase = async function() {
-            if (!isHost() && !state.roundStarted) {
-                showToast("⏳ Aguardando a anfitriã iniciar a rodada!");
+            if (state.phase === 'runway') {
+                startRunwayUI();
+                return;
+            }
+
+            if (!isHost()) {
+                showToast("👑 Apenas a anfitriã pode abrir o desfile da sala!");
                 return;
             }
 
@@ -1893,7 +2309,9 @@
                         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260"><rect width="200" height="260" fill="%23fdf2f8"/><circle cx="100" cy="75" r="35" fill="%23fbcfe8"/><text x="100" y="88" font-size="38" text-anchor="middle">😎</text><path d="M60 120 L140 120 L155 230 L45 230 Z" fill="%23db2777"/><text x="100" y="185" font-size="16" fill="%23fff" font-family="sans-serif" font-weight="bold" text-anchor="middle">LOOK SURPRESA</text></svg>`
                     ];
                 }
+                p.lookSaved = true;
                 if (!p.votes) p.votes = {};
+                if (!p.comments) p.comments = {};
             });
 
             const playerIds = Object.keys(state.players);
@@ -1902,37 +2320,70 @@
                     playerIds.forEach(targetId => {
                         if (targetId !== bot.id) {
                             state.players[targetId].votes[bot.id] = Math.floor(Math.random() * 3) + 3;
+                            state.players[targetId].comments[bot.id] = {
+                                authorName: bot.name,
+                                poseIndex: 1,
+                                text: bot.sampleComment,
+                                timestamp: Date.now()
+                            };
                         }
                     });
                 }
             });
 
             state.phase = 'runway';
+            if (!state.voteEndsAt) {
+                state.voteEndsAt = computeEndTimestamp(state.voteDays, state.endTime);
+            }
             state.runwayIndex = 0;
             state.runwayPoseIndex = 0;
             await pushStateToCloud();
             startRunwayUI();
         };
 
+        window.backToDressingRoom = function() {
+            renderPrepScreen();
+            switchScreen('prep');
+        };
+
         function startRunwayUI() {
             switchScreen('runway');
             document.getElementById('runway-theme-title').textContent = state.currentTheme.text;
-            document.getElementById('runway-phase-subtitle').textContent =
-                `Desfile Oficial • Votação (${state.voteDays}d) • Encerra às ${state.endTime}`;
-            showCurrentRunwayModel();
+            updateRoundCountdown();
+
+            const hostFinishBtn = document.getElementById('btn-host-finish-voting');
+            if (isHost()) {
+                hostFinishBtn.classList.remove('hidden');
+                hostFinishBtn.classList.add('flex');
+            } else {
+                hostFinishBtn.classList.add('hidden');
+                hostFinishBtn.classList.remove('flex');
+            }
+
+            showCurrentRunwayModel(true);
         }
 
-        function showCurrentRunwayModel() {
+        function showCurrentRunwayModel(resetPose = true) {
             const playersArr = Object.values(state.players);
+            if (playersArr.length === 0) return;
+
+            if (state.runwayIndex < 0) state.runwayIndex = 0;
+            if (state.runwayIndex >= playersArr.length) state.runwayIndex = playersArr.length - 1;
+
             const currentModel = playersArr[state.runwayIndex];
             if (!currentModel) return;
 
-            state.runwayPoseIndex = 0;
+            if (resetPose) {
+                state.runwayPoseIndex = 0;
+            } else if (currentModel.photos && state.runwayPoseIndex >= currentModel.photos.length) {
+                state.runwayPoseIndex = 0;
+            }
+
             document.getElementById('runway-current-idx').textContent = state.runwayIndex + 1;
             document.getElementById('runway-total-count').textContent = playersArr.length;
             document.getElementById('runway-model-name').textContent = currentModel.name;
 
-            updateRunwayPoseVisual(true);
+            updateRunwayPoseVisual(resetPose);
 
             const modelVotes = currentModel.votes || {};
             state.selectedVote = modelVotes[state.userId] || 0;
@@ -1941,22 +2392,95 @@
             const isMe = currentModel.id === state.userId;
             const instructionEl = document.getElementById('voting-instruction');
             const starsContainer = document.getElementById('stars-container');
+            const commentBox = document.getElementById('look-comment-box');
+            const commentInput = document.getElementById('input-look-comment');
+            const commentLabel = document.getElementById('look-comment-label');
+            const savedPreview = document.getElementById('look-comment-saved-preview');
+            const delCommentBtn = document.getElementById('btn-delete-look-comment');
 
             if (isMe) {
-                instructionEl.innerHTML = "💖 É você na passarela! Alterne suas poses acima!";
+                instructionEl.innerHTML = "💖 É o seu desfile! Alterne suas poses abaixo para conferir!";
                 starsContainer.classList.add('opacity-45', 'pointer-events-none');
+                commentBox.classList.add('hidden');
             } else {
-                instructionEl.innerHTML = `Toque nas estrelas para avaliar <b>${currentModel.name}</b>:`;
+                const alreadyRated = state.selectedVote > 0
+                    ? ` <span class="text-yellow-300">(Sua nota: ${state.selectedVote}⭐)</span>`
+                    : '';
+                instructionEl.innerHTML = `Toque nas estrelas para avaliar <b>${escapeHtml(currentModel.name)}</b>:${alreadyRated}`;
                 starsContainer.classList.remove('opacity-45', 'pointer-events-none');
+
+                commentBox.classList.remove('hidden');
+                const existingComment = (currentModel.comments && currentModel.comments[state.userId]) || null;
+                commentLabel.textContent = `Recado para ${currentModel.name} (Pose #${state.runwayPoseIndex + 1} • vai pro ranking):`;
+
+                if (document.activeElement !== commentInput) {
+                    commentInput.value = existingComment ? existingComment.text : '';
+                }
+
+                if (existingComment && existingComment.text) {
+                    savedPreview.textContent = `✅ Seu recado salvo (Pose #${existingComment.poseIndex || 1}): "${existingComment.text}"`;
+                    savedPreview.classList.remove('hidden');
+                    delCommentBtn.classList.remove('hidden');
+                } else {
+                    savedPreview.classList.add('hidden');
+                    delCommentBtn.classList.add('hidden');
+                }
+            }
+
+            const prevModelBtn = document.getElementById('btn-prev-model');
+            if (state.runwayIndex === 0) {
+                prevModelBtn.disabled = true;
+                prevModelBtn.classList.add('opacity-45', 'cursor-not-allowed');
+            } else {
+                prevModelBtn.disabled = false;
+                prevModelBtn.classList.remove('opacity-45', 'cursor-not-allowed');
             }
 
             const nextBtn = document.getElementById('btn-next-model');
             if (state.runwayIndex === playersArr.length - 1) {
-                nextBtn.innerHTML = `Ver Pódio & Ranking <i class="fa-solid fa-crown text-yellow-300"></i>`;
+                nextBtn.innerHTML = `Concluir Meus Votos <i class="fa-solid fa-crown text-yellow-300"></i>`;
             } else {
                 nextBtn.innerHTML = `Próximo Look <i class="fa-solid fa-arrow-right"></i>`;
             }
         }
+
+        window.saveLookComment = async function(event) {
+            if (event) event.preventDefault();
+            const playersArr = Object.values(state.players);
+            const currentModel = playersArr[state.runwayIndex];
+            if (!currentModel || currentModel.id === state.userId) return;
+
+            const input = document.getElementById('input-look-comment');
+            const text = input.value.trim().slice(0, 140);
+            if (!text) {
+                showToast("✍️ Escreva um comentário curto antes de salvar!");
+                return;
+            }
+
+            if (!currentModel.comments) currentModel.comments = {};
+            currentModel.comments[state.userId] = {
+                authorName: state.playerName || 'Modelo VIP',
+                poseIndex: state.runwayPoseIndex + 1,
+                text,
+                timestamp: Date.now()
+            };
+
+            showCurrentRunwayModel(false);
+            showToast(`💬 Recado salvo no look de <b>${escapeHtml(currentModel.name)}</b>! Aparecerá no pódio.`, "success");
+            await pushStateToCloud();
+        };
+
+        window.deleteLookComment = async function() {
+            const playersArr = Object.values(state.players);
+            const currentModel = playersArr[state.runwayIndex];
+            if (!currentModel || !currentModel.comments) return;
+
+            delete currentModel.comments[state.userId];
+            document.getElementById('input-look-comment').value = '';
+            showCurrentRunwayModel(false);
+            showToast("🗑️ Comentário removido.");
+            await pushStateToCloud();
+        };
 
         window.changeRunwayPose = function(delta) {
             const playersArr = Object.values(state.players);
@@ -1971,23 +2495,35 @@
 
             state.runwayPoseIndex = (state.runwayPoseIndex + delta + totalPoses) % totalPoses;
             updateRunwayPoseVisual(false);
+            if (currentModel.id !== state.userId) {
+                document.getElementById('look-comment-label').textContent =
+                    `Recado para ${currentModel.name} (Pose #${state.runwayPoseIndex + 1} • vai pro ranking):`;
+            }
             triggerModelPose();
         };
 
         window.setRunwayPoseDirect = function(idx) {
             state.runwayPoseIndex = idx;
             updateRunwayPoseVisual(false);
+            const playersArr = Object.values(state.players);
+            const currentModel = playersArr[state.runwayIndex];
+            if (currentModel && currentModel.id !== state.userId) {
+                document.getElementById('look-comment-label').textContent =
+                    `Recado para ${currentModel.name} (Pose #${state.runwayPoseIndex + 1} • vai pro ranking):`;
+            }
             triggerModelPose();
         };
 
         function updateRunwayPoseVisual(isFirstEntrance) {
             const playersArr = Object.values(state.players);
             const currentModel = playersArr[state.runwayIndex];
-            const photos = currentModel.photos || [];
+            const photos = (currentModel && currentModel.photos && currentModel.photos.length > 0)
+                ? currentModel.photos
+                : [currentModel?.avatar || ''];
             const totalPoses = photos.length;
 
             const dollImg = document.getElementById('runway-doll-img');
-            dollImg.src = photos[state.runwayPoseIndex] || photos[0];
+            dollImg.src = photos[state.runwayPoseIndex] || photos[0] || '';
 
             document.getElementById('runway-pose-badge').textContent = `Pose ${state.runwayPoseIndex + 1} de ${totalPoses}`;
 
@@ -2001,10 +2537,14 @@
                 nextBtn.classList.add('invisible');
             }
 
-            const dotsEl = document.getElementById('runway-pose-dots');
-            dotsEl.innerHTML = photos.map((_, idx) => `
-                <button onclick="setRunwayPoseDirect(${idx})" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold transition ${idx === state.runwayPoseIndex ? 'bg-yellow-300 text-purple-950 scale-110 shadow' : 'bg-white/25 text-white hover:bg-white/40'}">
-                    ${idx + 1}
+            const thumbsEl = document.getElementById('runway-pose-thumbnails');
+            thumbsEl.innerHTML = photos.map((src, idx) => `
+                <button type="button" onclick="setRunwayPoseDirect(${idx})" title="Ver Pose ${idx + 1}"
+                    class="relative w-11 h-14 rounded-xl overflow-hidden border-2 transition ${idx === state.runwayPoseIndex ? 'border-yellow-300 scale-110 shadow-lg ring-2 ring-yellow-300/60' : 'border-white/50 opacity-75 hover:opacity-100'}">
+                    <img src="${src}" class="w-full h-full object-cover">
+                    <span class="absolute bottom-0 left-0 right-0 bg-purple-950/85 text-[9px] font-extrabold text-yellow-200 leading-tight">
+                        #${idx + 1}
+                    </span>
                 </button>
             `).join('');
 
@@ -2040,7 +2580,8 @@
             if (!currentModel.votes) currentModel.votes = {};
             currentModel.votes[state.userId] = stars;
             updateStarsUI(stars);
-            showToast(`⭐ Você deu <b>${stars} estrela${stars > 1 ? 's' : ''}</b> brilhantes para ${currentModel.name}!`, "gold");
+            showCurrentRunwayModel(false);
+            showToast(`⭐ Você deu <b>${stars} estrela${stars > 1 ? 's' : ''}</b> brilhantes para ${escapeHtml(currentModel.name)}!`, "gold");
             await pushStateToCloud();
         };
 
@@ -2055,186 +2596,18 @@
             });
         }
 
+        window.prevRunwayModel = function() {
+            if (state.runwayIndex > 0) {
+                state.runwayIndex--;
+                showCurrentRunwayModel(true);
+            }
+        };
+
         window.nextRunwayModel = async function() {
             const playersArr = Object.values(state.players);
             if (state.runwayIndex < playersArr.length - 1) {
                 state.runwayIndex++;
-                showCurrentRunwayModel();
+                showCurrentRunwayModel(true);
             } else {
-                await finalizeRoundAndAccumulateScores();
-                state.phase = 'podium';
-                await pushStateToCloud();
-                renderPodiumScreen();
-                switchScreen('podium');
-            }
-        };
-
-        async function finalizeRoundAndAccumulateScores() {
-            const ranked = Object.values(state.players).map(p => {
-                const voteValues = Object.values(p.votes || {});
-                const totalStars = voteValues.reduce((acc, v) => acc + v, 0);
-                const roundStars = totalStars > 0 ? totalStars : 5;
-                return { ...p, score: roundStars };
-            }).sort((a, b) => b.score - a.score);
-
-            state.roundsPlayed = (state.roundsPlayed || 0) + 1;
-
-            ranked.forEach((player, index) => {
-                const key = player.name.trim().toLowerCase();
-                ensurePlayerInSeasonStats(player.name, (player.photos && player.photos[0]) || null);
-
-                const podiumBonus = index === 0 ? 3 : index === 1 ? 2 : index === 2 ? 1 : 0;
-                if (index === 0) state.seasonStats[key].wins += 1;
-                state.seasonStats[key].seasonPoints += podiumBonus;
-                state.seasonStats[key].totalStars += player.score;
-                if (player.photos && player.photos[0]) {
-                    state.seasonStats[key].lastPhoto = player.photos[0];
-                }
-            });
-
-            const myRankIdx = ranked.findIndex(p => p.id === state.userId);
-            if (myRankIdx >= 0) {
-                await recordRoomPlayedForProfile(
-                    state.roomCode,
-                    state.currentTheme.text,
-                    myRankIdx + 1,
-                    ranked[myRankIdx].score
-                );
-            }
-        }
-
-        function renderPodiumScreen() {
-            document.getElementById('podium-theme-label').textContent = `Tema: ${state.currentTheme.text}`;
-
-            const ranked = Object.values(state.players).map(p => {
-                const voteValues = Object.values(p.votes || {});
-                const totalStars = voteValues.reduce((acc, v) => acc + v, 0);
-                const finalScore = totalStars > 0 ? totalStars : 5;
-                return { ...p, score: finalScore };
-            }).sort((a, b) => b.score - a.score);
-
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 95,
-                    spread: 80,
-                    origin: { y: 0.6 },
-                    colors: ['#ff2a85', '#ffd700', '#e879f9', '#ffffff']
-                });
-            }
-
-            const podiumOrder = [
-                { player: ranked[1], rank: 2, height: 'h-28', bg: 'from-slate-200 to-slate-400', badge: '🥈 2º (+2pts)' },
-                { player: ranked[0], rank: 1, height: 'h-36', bg: 'from-yellow-200 via-amber-400 to-yellow-500', badge: '👑 1º (+3pts)' },
-                { player: ranked[2], rank: 3, height: 'h-24', bg: 'from-amber-500 to-amber-700', badge: '🥉 3º (+1pt)' }
-            ];
-
-            const podiumStage = document.getElementById('podium-stage');
-            podiumStage.innerHTML = podiumOrder.map(slot => {
-                if (!slot.player) return '';
-                const isFirst = slot.rank === 1;
-                const coverPhoto = (slot.player.photos && slot.player.photos[0]) || '';
-                return `
-                    <div class="flex flex-col items-center w-1/3 max-w-[125px]">
-                        <div class="doll-wrapper ${isFirst ? 'anim-bounce' : ''} mb-2">
-                            ${isFirst ? '<div class="text-2xl -mb-1">👑</div>' : ''}
-                            <img src="${coverPhoto}" class="doll-sticker ${isFirst ? 'w-24 h-32' : 'w-20 h-28'} object-cover rounded-3xl">
-                        </div>
-                        <p class="text-xs font-extrabold text-white truncate w-full px-1">${slot.player.name}</p>
-                        <span class="text-[11px] font-bold text-yellow-200 mb-1.5">
-                            ⭐ ${slot.player.score} estrelas
-                        </span>
-                        <div class="w-full ${slot.height} bg-gradient-to-b ${slot.bg} rounded-t-2xl border-t-2 border-white flex flex-col items-center justify-start pt-2 shadow-xl">
-                            <span class="font-display font-extrabold text-[10px] sm:text-xs text-purple-950 bg-white/90 px-2 py-0.5 rounded-full">
-                                ${slot.badge}
-                            </span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            const listEl = document.getElementById('full-ranking-list');
-            listEl.innerHTML = ranked.map((p, idx) => `
-                <div class="flex items-center justify-between bg-purple-950/60 border border-white/15 rounded-2xl px-3.5 py-2.5">
-                    <div class="flex items-center gap-3">
-                        <span class="font-display font-bold text-pink-200 w-5">#${idx + 1}</span>
-                        <img src="${(p.photos && p.photos[0]) || ''}" class="w-10 h-10 rounded-xl object-cover border border-white">
-                        <span class="font-bold text-sm text-white">${p.name}</span>
-                    </div>
-                    <span class="font-extrabold text-sm text-yellow-300">
-                        ⭐ ${p.score}
-                    </span>
-                </div>
-            `).join('');
-        }
-
-        window.openLeaderboardModal = function() {
-            document.getElementById('total-rounds-played').textContent = state.roundsPlayed || 0;
-            const seasonArr = Object.values(state.seasonStats || {}).sort((a, b) => {
-                if (b.seasonPoints !== a.seasonPoints) return b.seasonPoints - a.seasonPoints;
-                return b.totalStars - a.totalStars;
-            });
-
-            const listEl = document.getElementById('season-leaderboard-list');
-            if (seasonArr.length === 0) {
-                listEl.innerHTML = `<p class="text-center text-sm text-pink-200 py-6">Nenhuma rodada finalizada ainda. Desfile para pontuar! ✨</p>`;
-            } else {
-                listEl.innerHTML = seasonArr.map((entry, idx) => `
-                    <div class="flex items-center justify-between bg-white/12 border ${idx === 0 ? 'border-yellow-300 bg-yellow-400/15' : 'border-white/20'} rounded-2xl px-3.5 py-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-7 h-7 rounded-full ${idx === 0 ? 'bg-yellow-300 text-purple-950' : 'bg-white/20 text-white'} font-display font-extrabold text-xs flex items-center justify-center">
-                                ${idx === 0 ? '👑' : `#${idx + 1}`}
-                            </div>
-                            ${entry.lastPhoto
-                                ? `<img src="${entry.lastPhoto}" class="w-10 h-10 rounded-xl object-cover border border-white">`
-                                : `<div class="w-10 h-10 rounded-xl bg-pink-500/30 border border-white/40 flex items-center justify-center">✨</div>`
-                            }
-                            <div>
-                                <p class="font-extrabold text-sm text-white">${entry.name}</p>
-                                <span class="text-[11px] text-pink-200 font-semibold">
-                                    🏆 ${entry.wins} vitória(s) • ⭐ ${entry.totalStars} estrelas
-                                </span>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="font-display font-extrabold text-base text-yellow-300 block">
-                                ${entry.seasonPoints} pts
-                            </span>
-                            <span class="text-[9px] uppercase tracking-wider text-pink-200 font-bold">Total</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            document.getElementById('modal-leaderboard').classList.remove('hidden');
-        };
-
-        window.closeLeaderboardModal = function() {
-            document.getElementById('modal-leaderboard').classList.add('hidden');
-        };
-
-        window.startNewRound = async function() {
-            const randomIdx = Math.floor(Math.random() * state.themeBank.length);
-            state.currentTheme = state.themeBank[randomIdx];
-            state.phase = 'prep';
-            state.roundStarted = false;
-            state.prepEndsAt = null;
-            state.voteEndsAt = null;
-            state.runwayIndex = 0;
-            state.runwayPoseIndex = 0;
-            state.selectedPreviewPoseIdx = 0;
-
-            Object.values(state.players).forEach(p => {
-                if (!p.id.startsWith('bot_')) {
-                    p.photos = p.avatar ? [p.avatar] : [];
-                }
-                p.votes = {};
-            });
-
-            await pushStateToCloud();
-            renderPrepScreen();
-            switchScreen('prep');
-            showToast("🎉 Nova rodada pronta! Anfitriã pode sortear e começar.", "gold");
-        };
-    </script>
-</body>
-</html>
+                const otherPlayers = playersArr.filter(p => p.id !== state.userId);
+                const missingVotes = otherPlayers.filter(p => !(p.
