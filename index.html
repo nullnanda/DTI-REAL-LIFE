@@ -271,7 +271,6 @@
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
-            <!-- BOTÃO JANELINHA DE CHAT DA SALA -->
             <button id="btn-header-chat" onclick="toggleChatDrawer()" title="Abrir Chat da Sala" class="hidden relative items-center gap-1.5 bg-fuchsia-500/35 hover:bg-fuchsia-500/55 border border-pink-200/75 px-2.5 py-1.5 rounded-2xl text-xs font-extrabold text-white transition">
                 <i class="fa-solid fa-comments text-yellow-300"></i>
                 <span class="hidden sm:inline">Chat</span>
@@ -668,7 +667,6 @@
                     </button>
                 </div>
 
-                <!-- TODAS AS POSES DO PARTICIPANTE VISÍVEIS PARA NAVEGAR -->
                 <div class="z-20 flex flex-col items-center gap-2 w-full">
                     <div id="runway-pose-thumbnails" class="flex items-center justify-center gap-1.5 flex-wrap"></div>
                     <button onclick="triggerModelPose()" class="bg-white/20 hover:bg-white/35 backdrop-blur-md border border-white/50 px-4 py-1 rounded-full text-xs font-extrabold text-white flex items-center gap-1.5 transition active:scale-95">
@@ -702,7 +700,6 @@
                     </button>
                 </div>
 
-                <!-- CAMPO DE COMENTÁRIO NO LOOK (APARECE NO PÓDIO / RANKING) -->
                 <div id="look-comment-box" class="bg-purple-950/55 border border-pink-200/35 rounded-2xl p-3 text-left space-y-2">
                     <div class="flex items-center justify-between gap-2">
                         <label for="input-look-comment" class="text-[11px] font-extrabold uppercase tracking-wider text-pink-200 flex items-center gap-1.5">
@@ -902,14 +899,32 @@
         <div class="y2k-byline">by @abominavelferneves</div>
     </footer>
 
+    <!-- GARANTIA IMEDIATA PARA EVITAR REFERENCEERROR AO DIGITAR O CÓDIGO DE SALA -->
+    <script>
+        window.__roomModeCheckReady = false;
+        window.updateHostSetupVisibility = function() {
+            const input = document.getElementById('input-room-code');
+            const badge = document.getElementById('room-mode-badge');
+            const fields = document.getElementById('host-controls-fields');
+            if (!input || !badge || !fields) return;
+
+            const code = input.value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+            if (typeof window.__checkRoomExists === 'function') {
+                window.__checkRoomExists(code, badge, fields);
+            } else if (!code) {
+                badge.textContent = "Anfitriã (Nova Sala)";
+                fields.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                badge.textContent = "Configurando Sala...";
+            }
+        };
+    </script>
+
     <!-- SCRIPT DO JOGO COM FIREBASE REALTIME DATABASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getDatabase, ref, set, get, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
-        // ==========================================
-        // EFEITO DE GLITTER ANIMADO NO FUNDO
-        // ==========================================
         function initGlitterBackground() {
             const canvas = document.getElementById('glitter-canvas');
             const ctx = canvas.getContext('2d');
@@ -976,9 +991,6 @@
         }
         initGlitterBackground();
 
-        // ==========================================
-        // BANCO DE TEMAS PADRÃO
-        // ==========================================
         const DEFAULT_THEME_BANK = [
             { text: "Vilão de Novela Mexicana 💅", author: "Banco Oficial ✨" },
             { text: "Y2K / Anos 2000 Pop Star 💿", author: "Banco Oficial ✨" },
@@ -1032,6 +1044,31 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
+        let roomCheckTimer = null;
+        window.__checkRoomExists = function(code, badge, fields) {
+            if (!code) {
+                badge.textContent = "Anfitriã (Nova Sala)";
+                fields.classList.remove('opacity-50', 'pointer-events-none');
+                return;
+            }
+            clearTimeout(roomCheckTimer);
+            roomCheckTimer = setTimeout(async () => {
+                try {
+                    const snap = await get(ref(db, `rooms/${code}`));
+                    if (snap.exists()) {
+                        badge.textContent = "Entrando em Sala Existente";
+                        fields.classList.add('opacity-50', 'pointer-events-none');
+                    } else {
+                        badge.textContent = "Anfitriã (Nova Sala)";
+                        fields.classList.remove('opacity-50', 'pointer-events-none');
+                    }
+                } catch (_) {
+                    badge.textContent = "Anfitriã";
+                    fields.classList.remove('opacity-50', 'pointer-events-none');
+                }
+            }, 250);
+        };
 
         let state = {
             userId: 'user_' + Math.random().toString(36).substring(2, 9),
@@ -1125,9 +1162,6 @@
             document.getElementById(`screen-${screenName}`).classList.remove('hidden');
         }
 
-        // ==========================================
-        // JANELINHA DE CHAT DA SALA
-        // ==========================================
         window.toggleChatDrawer = function(forceState) {
             state.chatOpen = typeof forceState === 'boolean' ? forceState : !state.chatOpen;
             const drawer = document.getElementById('chat-drawer');
@@ -1237,7 +1271,6 @@
                 const chatRef = ref(db, `rooms/${state.roomCode}/chat`);
                 await push(chatRef, msgObj);
 
-                // Mantém apenas as últimas 50 mensagens no banco
                 const snap = await get(chatRef);
                 if (snap.exists()) {
                     const entries = Object.entries(snap.val());
@@ -1280,9 +1313,6 @@
             });
         }
 
-        // ==========================================
-        // FOTO DE PERFIL & PERFIL LEVE (TAG + PIN)
-        // ==========================================
         function compressImageDataUrl(dataUrl, maxW, quality, callback) {
             const img = new Image();
             img.onload = function() {
@@ -1329,36 +1359,6 @@
                 clearBtn.classList.add('hidden');
             }
         }
-
-        let roomCheckTimer = null;
-        window.updateHostSetupVisibility = function() {
-            const code = document.getElementById('input-room-code').value.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
-            const badge = document.getElementById('room-mode-badge');
-            const fields = document.getElementById('host-controls-fields');
-
-            if (!code) {
-                badge.textContent = "Anfitriã (Nova Sala)";
-                fields.classList.remove('opacity-50', 'pointer-events-none');
-                return;
-            }
-
-            clearTimeout(roomCheckTimer);
-            roomCheckTimer = setTimeout(async () => {
-                try {
-                    const snap = await get(ref(db, `rooms/${code}`));
-                    if (snap.exists()) {
-                        badge.textContent = "Entrando em Sala Existente";
-                        fields.classList.add('opacity-50', 'pointer-events-none');
-                    } else {
-                        badge.textContent = "Anfitriã (Nova Sala)";
-                        fields.classList.remove('opacity-50', 'pointer-events-none');
-                    }
-                } catch (_) {
-                    badge.textContent = "Anfitriã";
-                    fields.classList.remove('opacity-50', 'pointer-events-none');
-                }
-            }, 250);
-        };
 
         function normalizeTagKey(tag) {
             return tag.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
@@ -2289,9 +2289,6 @@
             }).join('');
         }
 
-        // ==========================================
-        // PASSARELA ASSÍNCRONA, VOTOS & COMENTÁRIOS
-        // ==========================================
         window.triggerRunwayPhase = async function() {
             if (state.phase === 'runway') {
                 startRunwayUI();
@@ -2610,4 +2607,236 @@
                 showCurrentRunwayModel(true);
             } else {
                 const otherPlayers = playersArr.filter(p => p.id !== state.userId);
-                const missingVotes = otherPlayers.filter(p => !(p.
+                const missingVotes = otherPlayers.filter(p => !(p.votes && p.votes[state.userId]));
+
+                if (missingVotes.length > 0) {
+                    showToast(`⭐ Você ainda não votou em ${missingVotes.length} look(s)! Use "Ver Look Anterior" para avaliar.`);
+                    return;
+                }
+
+                showToast("💖 Seus votos foram salvos! Abrindo o Pódio da Passarela...", "gold");
+                await hostFinishVotingNow(true);
+            }
+        };
+
+        window.hostFinishVotingNow = async function(fromAllVoted = false) {
+            if (!fromAllVoted && !isHost()) {
+                showToast("👑 Apenas a anfitriã pode encerrar a votação antes do horário.");
+                return;
+            }
+            if (state.phase !== 'podium') {
+                await finalizeRoundAndAccumulateScores();
+                state.phase = 'podium';
+                await pushStateToCloud();
+            }
+            renderPodiumScreen(true);
+            switchScreen('podium');
+        };
+
+        async function finalizeRoundAndAccumulateScores() {
+            const ranked = Object.values(state.players).map(p => {
+                const voteValues = Object.values(p.votes || {});
+                const totalStars = voteValues.reduce((acc, v) => acc + v, 0);
+                const roundStars = totalStars > 0 ? totalStars : 5;
+                return { ...p, score: roundStars };
+            }).sort((a, b) => b.score - a.score);
+
+            state.roundsPlayed = (state.roundsPlayed || 0) + 1;
+
+            ranked.forEach((player, index) => {
+                const key = player.name.trim().toLowerCase();
+                ensurePlayerInSeasonStats(player.name, (player.photos && player.photos[0]) || null);
+
+                const podiumBonus = index === 0 ? 3 : index === 1 ? 2 : index === 2 ? 1 : 0;
+                if (index === 0) state.seasonStats[key].wins += 1;
+                state.seasonStats[key].seasonPoints += podiumBonus;
+                state.seasonStats[key].totalStars += player.score;
+                if (player.photos && player.photos[0]) {
+                    state.seasonStats[key].lastPhoto = player.photos[0];
+                }
+            });
+
+            const myRankIdx = ranked.findIndex(p => p.id === state.userId);
+            if (myRankIdx >= 0) {
+                await recordRoomPlayedForProfile(
+                    state.roomCode,
+                    state.currentTheme.text,
+                    myRankIdx + 1,
+                    ranked[myRankIdx].score
+                );
+            }
+        }
+
+        window.togglePodiumComments = function(playerId) {
+            state.expandedPodiumComments[playerId] = !state.expandedPodiumComments[playerId];
+            renderPodiumScreen(false);
+        };
+
+        function renderPodiumScreen(launchConfetti = true) {
+            document.getElementById('podium-theme-label').textContent = `Tema: ${state.currentTheme.text}`;
+
+            const ranked = Object.values(state.players).map(p => {
+                const voteValues = Object.values(p.votes || {});
+                const totalStars = voteValues.reduce((acc, v) => acc + v, 0);
+                const finalScore = totalStars > 0 ? totalStars : 5;
+                return { ...p, score: finalScore };
+            }).sort((a, b) => b.score - a.score);
+
+            if (launchConfetti && typeof confetti === 'function') {
+                confetti({
+                    particleCount: 95,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#ff2a85', '#ffd700', '#e879f9', '#ffffff']
+                });
+            }
+
+            const podiumOrder = [
+                { player: ranked[1], rank: 2, height: 'h-28', bg: 'from-slate-200 to-slate-400', badge: '🥈 2º (+2pts)' },
+                { player: ranked[0], rank: 1, height: 'h-36', bg: 'from-yellow-200 via-amber-400 to-yellow-500', badge: '👑 1º (+3pts)' },
+                { player: ranked[2], rank: 3, height: 'h-24', bg: 'from-amber-500 to-amber-700', badge: '🥉 3º (+1pt)' }
+            ];
+
+            const podiumStage = document.getElementById('podium-stage');
+            podiumStage.innerHTML = podiumOrder.map(slot => {
+                if (!slot.player) return '';
+                const isFirst = slot.rank === 1;
+                const coverPhoto = (slot.player.photos && slot.player.photos[0]) || '';
+                return `
+                    <div class="flex flex-col items-center w-1/3 max-w-[125px]">
+                        <div class="doll-wrapper ${isFirst ? 'anim-bounce' : ''} mb-2">
+                            ${isFirst ? '<div class="text-2xl -mb-1">👑</div>' : ''}
+                            <img src="${coverPhoto}" class="doll-sticker ${isFirst ? 'w-24 h-32' : 'w-20 h-28'} object-cover rounded-3xl">
+                        </div>
+                        <p class="text-xs font-extrabold text-white truncate w-full px-1">${escapeHtml(slot.player.name)}</p>
+                        <span class="text-[11px] font-bold text-yellow-200 mb-1.5">
+                            ⭐ ${slot.player.score} estrelas
+                        </span>
+                        <div class="w-full ${slot.height} bg-gradient-to-b ${slot.bg} rounded-t-2xl border-t-2 border-white flex flex-col items-center justify-start pt-2 shadow-xl">
+                            <span class="font-display font-extrabold text-[10px] sm:text-xs text-purple-950 bg-white/90 px-2 py-0.5 rounded-full">
+                                ${slot.badge}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const listEl = document.getElementById('full-ranking-list');
+            listEl.innerHTML = ranked.map((p, idx) => {
+                const commentsArr = Object.values(p.comments || {}).filter(c => c && c.text);
+                const isExpanded = Boolean(state.expandedPodiumComments[p.id]);
+                return `
+                    <div class="bg-purple-950/60 border border-white/15 rounded-2xl px-3.5 py-2.5 space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <span class="font-display font-bold text-pink-200 w-5 shrink-0">#${idx + 1}</span>
+                                <img src="${(p.photos && p.photos[0]) || ''}" class="w-10 h-10 shrink-0 rounded-xl object-cover border border-white">
+                                <div class="min-w-0">
+                                    <span class="font-bold text-sm text-white block truncate">${escapeHtml(p.name)}</span>
+                                    <button type="button" onclick="togglePodiumComments('${p.id}')" class="text-[11px] font-bold ${commentsArr.length > 0 ? 'text-pink-200 hover:text-yellow-300' : 'text-white/45'} flex items-center gap-1 mt-0.5">
+                                        <i class="fa-solid fa-comment-dots"></i>
+                                        ${commentsArr.length > 0
+                                            ? `Ver comentários (${commentsArr.length}) ${isExpanded ? '▲' : '▼'}`
+                                            : 'Sem comentários ainda'}
+                                    </button>
+                                </div>
+                            </div>
+                            <span class="font-extrabold text-sm text-yellow-300 shrink-0">
+                                ⭐ ${p.score}
+                            </span>
+                        </div>
+
+                        ${isExpanded && commentsArr.length > 0 ? `
+                            <div class="chat-selectable pt-2 border-t border-white/15 space-y-1.5">
+                                ${commentsArr.map(c => `
+                                    <div class="bg-white/10 border border-pink-200/25 rounded-xl px-3 py-2 text-xs">
+                                        <div class="flex items-center justify-between gap-2 mb-0.5">
+                                            <span class="font-extrabold text-yellow-200">${escapeHtml(c.authorName || 'Modelo')}</span>
+                                            <span class="text-[10px] font-bold text-pink-200 bg-pink-500/30 px-2 py-0.5 rounded-full">
+                                                Pose #${c.poseIndex || 1}
+                                            </span>
+                                        </div>
+                                        <p class="text-white/95 leading-snug">${escapeHtml(c.text)}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.openLeaderboardModal = function() {
+            document.getElementById('total-rounds-played').textContent = state.roundsPlayed || 0;
+            const seasonArr = Object.values(state.seasonStats || {}).sort((a, b) => {
+                if (b.seasonPoints !== a.seasonPoints) return b.seasonPoints - a.seasonPoints;
+                return b.totalStars - a.totalStars;
+            });
+
+            const listEl = document.getElementById('season-leaderboard-list');
+            if (seasonArr.length === 0) {
+                listEl.innerHTML = `<p class="text-center text-sm text-pink-200 py-6">Nenhuma rodada finalizada ainda. Desfile para pontuar! ✨</p>`;
+            } else {
+                listEl.innerHTML = seasonArr.map((entry, idx) => `
+                    <div class="flex items-center justify-between bg-white/12 border ${idx === 0 ? 'border-yellow-300 bg-yellow-400/15' : 'border-white/20'} rounded-2xl px-3.5 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-7 h-7 rounded-full ${idx === 0 ? 'bg-yellow-300 text-purple-950' : 'bg-white/20 text-white'} font-display font-extrabold text-xs flex items-center justify-center">
+                                ${idx === 0 ? '👑' : `#${idx + 1}`}
+                            </div>
+                            ${entry.lastPhoto
+                                ? `<img src="${entry.lastPhoto}" class="w-10 h-10 rounded-xl object-cover border border-white">`
+                                : `<div class="w-10 h-10 rounded-xl bg-pink-500/30 border border-white/40 flex items-center justify-center">✨</div>`
+                            }
+                            <div>
+                                <p class="font-extrabold text-sm text-white">${escapeHtml(entry.name)}</p>
+                                <span class="text-[11px] text-pink-200 font-semibold">
+                                    🏆 ${entry.wins} vitória(s) • ⭐ ${entry.totalStars} estrelas
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-display font-extrabold text-base text-yellow-300 block">
+                                ${entry.seasonPoints} pts
+                            </span>
+                            <span class="text-[9px] uppercase tracking-wider text-pink-200 font-bold">Total</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('modal-leaderboard').classList.remove('hidden');
+        };
+
+        window.closeLeaderboardModal = function() {
+            document.getElementById('modal-leaderboard').classList.add('hidden');
+        };
+
+        window.startNewRound = async function() {
+            const randomIdx = Math.floor(Math.random() * state.themeBank.length);
+            state.currentTheme = state.themeBank[randomIdx];
+            state.phase = 'prep';
+            state.roundStarted = false;
+            state.prepEndsAt = null;
+            state.voteEndsAt = null;
+            state.runwayIndex = 0;
+            state.runwayPoseIndex = 0;
+            state.selectedPreviewPoseIdx = 0;
+            state.expandedPodiumComments = {};
+
+            Object.values(state.players).forEach(p => {
+                if (!p.id.startsWith('bot_')) {
+                    p.photos = p.avatar ? [p.avatar] : [];
+                    p.lookSaved = p.photos.length > 0;
+                }
+                p.votes = {};
+                p.comments = {};
+            });
+
+            await pushStateToCloud();
+            renderPrepScreen();
+            switchScreen('prep');
+            showToast("🎉 Nova rodada pronta! Anfitriã pode sortear e começar.", "gold");
+        };
+    </script>
+</body>
+</html>
