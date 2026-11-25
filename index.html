@@ -564,10 +564,10 @@
                             <button onclick="setDollAnimation('anim-walk')" class="px-3 py-1.5 rounded-xl bg-pink-500/45 hover:bg-pink-500/70 border border-pink-200/50 text-xs font-bold">
                                 💃 Gingado
                             </button>
-                            <button onclick="setDollAnimation('anim-bounce')" class="px-3 py-1.5 rounded-xl bg-purple-500/45 hover:bg-purple-500/70 border border-purple-200/50 text-xs font-bold">
+                            <button onclick="setDollAnimation('anim-bounce')" class="px-3 py-1.5 rounded-xl bg-purple-500/45 hover:bg-purple-500/70 border border-pink-200/50 text-xs font-bold">
                                 ⭐ Pulinhos
                             </button>
-                            <button onclick="setDollAnimation('anim-zoom')" class="px-3 py-1.5 rounded-xl bg-fuchsia-500/45 hover:bg-fuchsia-500/70 border border-fuchsia-200/50 text-xs font-bold">
+                            <button onclick="setDollAnimation('anim-zoom')" class="px-3 py-1.5 rounded-xl bg-fuchsia-500/45 hover:bg-fuchsia-500/70 border border-pink-200/50 text-xs font-bold">
                                 📸 Zoom Diva
                             </button>
                             <button onclick="toggleToonFilter()" class="px-3 py-1.5 rounded-xl bg-yellow-400/30 hover:bg-yellow-400/50 border border-yellow-200/50 text-xs font-bold text-yellow-200">
@@ -620,7 +620,7 @@
             <div class="glass-cute rounded-3xl px-5 py-3 flex items-center justify-between gap-2">
                 <div class="min-w-0">
                     <span id="runway-phase-subtitle" class="text-[10px] uppercase tracking-widest text-yellow-300 font-extrabold block">
-                        Desfile Oficial • Votação Assíncrona
+                        Desfile Oficial • Votação Coletiva
                     </span>
                     <h2 id="runway-theme-title" class="text-base sm:text-lg font-bold text-white truncate">
                         Tema do Dia
@@ -737,6 +737,71 @@
 
                     <button id="btn-host-finish-voting" onclick="hostFinishVotingNow()" class="hidden text-xs font-extrabold text-yellow-300 hover:underline flex items-center gap-1">
                         <i class="fa-solid fa-crown"></i> Encerrar Votação & Abrir Pódio
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <span class="y2k-byline">by @abominavelferneves</span>
+            </div>
+        </section>
+
+        <!-- TELA 3.5: REVISÃO DE VOTOS & SALA DE ESPERA DA VOTAÇÃO -->
+        <section id="screen-voting-status" class="hidden space-y-4">
+            <div id="vote-review-card" class="glass-cute rounded-3xl p-5 space-y-4">
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <span class="inline-flex items-center gap-1 bg-yellow-300/20 border border-yellow-300/60 text-yellow-200 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-1">
+                            <i class="fa-solid fa-clipboard-check"></i> Revisão Antes de Confirmar
+                        </span>
+                        <h2 class="font-display font-bold text-2xl text-white">Confira seus votos & recados</h2>
+                        <p class="text-xs text-pink-200 mt-0.5">
+                            Toque em qualquer look abaixo para voltar e ajustar suas estrelas ou comentários antes de enviar.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="vote-review-list" class="space-y-2.5 max-h-[340px] overflow-y-auto pr-1"></div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    <button type="button" onclick="returnToRunwayIndex(0)" class="glass-card-light hover:bg-white/25 py-3 px-4 rounded-2xl font-bold text-xs text-white flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-rotate-left"></i> Revisar Looks na Passarela
+                    </button>
+                    <button type="button" onclick="confirmMyVotes()" class="btn-gold py-3.5 px-4 rounded-2xl font-display font-bold text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check-double"></i> Confirmar Meus Votos ✨
+                    </button>
+                </div>
+            </div>
+
+            <div id="vote-waiting-card" class="hidden glass-cute rounded-3xl p-5 space-y-4 text-center">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-yellow-300/20 border-2 border-yellow-300/70 flex items-center justify-center text-2xl text-yellow-300 shadow-lg">
+                    <i class="fa-solid fa-hourglass-half fa-spin" style="--fa-animation-duration: 3.5s;"></i>
+                </div>
+
+                <div class="space-y-1">
+                    <span class="inline-block bg-emerald-400/20 border border-emerald-300/60 text-emerald-200 text-[10px] font-extrabold uppercase tracking-widest px-3 py-0.5 rounded-full">
+                        Seus votos estão salvos ✅
+                    </span>
+                    <h2 class="font-display font-bold text-2xl text-white">Aguardando outras modelos...</h2>
+                    <p id="waiting-progress-summary" class="text-xs text-pink-200 font-semibold">
+                        O pódio abrirá automaticamente assim que todas concluírem a votação!
+                    </p>
+                </div>
+
+                <div id="waiting-voters-list" class="space-y-2 text-left max-h-[260px] overflow-y-auto pr-1"></div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    <button type="button" onclick="reopenVoteReview()" class="glass-card-light hover:bg-white/25 py-3 px-4 rounded-2xl font-bold text-xs text-white flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-pen-to-square"></i> Rever / Alterar Meus Votos
+                    </button>
+                    <button type="button" onclick="toggleChatDrawer(true)" class="btn-glam py-3 px-4 rounded-2xl font-bold text-xs text-white flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-comments"></i> Conversar no Chat
+                    </button>
+                </div>
+
+                <div id="waiting-host-actions" class="hidden pt-2 border-t border-white/15">
+                    <button type="button" onclick="hostFinishVotingNow()" class="w-full btn-gold py-3 rounded-2xl font-display font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-crown"></i> Anfitriã: Encerrar Agora & Abrir Pódio
                     </button>
                 </div>
             </div>
@@ -1101,6 +1166,7 @@
             runwayIndex: 0,
             runwayPoseIndex: 0,
             selectedVote: 0,
+            votingStatusMode: 'review',
             isBotDemo: false,
             activeScreen: 'login',
             chatOpen: false,
@@ -1156,10 +1222,27 @@
 
         function switchScreen(screenName) {
             state.activeScreen = screenName;
-            ['screen-login', 'screen-prep', 'screen-runway', 'screen-podium'].forEach(id => {
+            ['screen-login', 'screen-prep', 'screen-runway', 'screen-voting-status', 'screen-podium'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
             document.getElementById(`screen-${screenName}`).classList.remove('hidden');
+        }
+
+        function getActiveVotersList() {
+            const allPlayers = Object.values(state.players || {});
+            return allPlayers.filter(p => !String(p.id || '').startsWith('bot_'));
+        }
+
+        function hasPlayerFinishedVoting(player) {
+            if (!player) return false;
+            if (String(player.id || '').startsWith('bot_')) return true;
+            return Boolean(player.finishedVoting);
+        }
+
+        function areAllActiveVotersDone() {
+            const voters = getActiveVotersList();
+            if (voters.length === 0) return true;
+            return voters.every(p => hasPlayerFinishedVoting(p));
         }
 
         window.toggleChatDrawer = function(forceState) {
@@ -1628,6 +1711,7 @@
                 avatar: state.profilePhoto || null,
                 photos: initialPhotos,
                 lookSaved: initialPhotos.length > 0,
+                finishedVoting: false,
                 anim: 'anim-walk',
                 toonFilter: true,
                 votes: {},
@@ -1650,6 +1734,7 @@
                         avatar: bot.photos[0],
                         photos: [...bot.photos],
                         lookSaved: true,
+                        finishedVoting: true,
                         anim: 'anim-walk',
                         toonFilter: true,
                         votes: {},
@@ -1747,6 +1832,7 @@
                             name: state.playerName || existingMatch.name,
                             tag: state.profileTag || existingMatch.tag || '',
                             avatar: state.profilePhoto || existingMatch.avatar || null,
+                            finishedVoting: Boolean(existingMatch.finishedVoting),
                             photos: (existingMatch.photos && existingMatch.photos.length > 0)
                                 ? existingMatch.photos
                                 : myPlayer.photos
@@ -1763,7 +1849,7 @@
 
                 attachChatListener(state.roomCode);
 
-                onValue(roomRef, (docSnap) => {
+                onValue(roomRef, async (docSnap) => {
                     const data = docSnap.val();
                     if (!data) return;
 
@@ -1790,7 +1876,14 @@
                     if (data.phase && data.phase !== state.phase) {
                         state.phase = data.phase;
                         if (state.phase === 'runway') {
-                            startRunwayUI();
+                            const meNow = state.players[state.userId];
+                            if (hasPlayerFinishedVoting(meNow)) {
+                                state.votingStatusMode = 'waiting';
+                                renderVotingStatusScreen();
+                                switchScreen('voting-status');
+                            } else {
+                                startRunwayUI();
+                            }
                         } else if (state.phase === 'podium') {
                             renderPodiumScreen();
                             switchScreen('podium');
@@ -1806,6 +1899,12 @@
                             state.runwayIndex = Math.max(0, playersArr.length - 1);
                         }
                         showCurrentRunwayModel(false);
+                    } else if (state.activeScreen === 'voting-status') {
+                        if (state.votingStatusMode === 'waiting' && isHost() && areAllActiveVotersDone() && state.phase === 'runway') {
+                            await hostFinishVotingNow(true);
+                            return;
+                        }
+                        renderVotingStatusScreen();
                     } else if (state.activeScreen === 'podium') {
                         renderPodiumScreen(false);
                     }
@@ -1817,7 +1916,14 @@
                 state.players = latestData.players || state.players;
 
                 if (state.phase === 'runway') {
-                    startRunwayUI();
+                    const meNow = state.players[state.userId];
+                    if (hasPlayerFinishedVoting(meNow)) {
+                        state.votingStatusMode = 'waiting';
+                        renderVotingStatusScreen();
+                        switchScreen('voting-status');
+                    } else {
+                        startRunwayUI();
+                    }
                 } else if (state.phase === 'podium') {
                     renderPodiumScreen();
                     switchScreen('podium');
@@ -1901,7 +2007,7 @@
                         ? `Votação aberta: ${formattedVote} (encerra às ${state.endTime})`
                         : `Período de votação encerrado!`;
                 } else {
-                    voteTimerEl.textContent = `Votação assíncrona (${state.voteDays}d) • Encerra às ${state.endTime}`;
+                    voteTimerEl.textContent = `Votação coletiva (${state.voteDays}d) • Encerra às ${state.endTime}`;
                 }
             }
         }
@@ -2136,6 +2242,7 @@
                 avatar: bot.photos[0],
                 photos: [...bot.photos],
                 lookSaved: true,
+                finishedVoting: true,
                 anim: 'anim-walk',
                 toonFilter: true,
                 votes: {},
@@ -2291,7 +2398,14 @@
 
         window.triggerRunwayPhase = async function() {
             if (state.phase === 'runway') {
-                startRunwayUI();
+                const meNow = state.players[state.userId];
+                if (hasPlayerFinishedVoting(meNow)) {
+                    state.votingStatusMode = 'waiting';
+                    renderVotingStatusScreen();
+                    switchScreen('voting-status');
+                } else {
+                    startRunwayUI();
+                }
                 return;
             }
 
@@ -2307,6 +2421,11 @@
                     ];
                 }
                 p.lookSaved = true;
+                if (!String(p.id || '').startsWith('bot_')) {
+                    p.finishedVoting = false;
+                } else {
+                    p.finishedVoting = true;
+                }
                 if (!p.votes) p.votes = {};
                 if (!p.comments) p.comments = {};
             });
@@ -2435,7 +2554,7 @@
 
             const nextBtn = document.getElementById('btn-next-model');
             if (state.runwayIndex === playersArr.length - 1) {
-                nextBtn.innerHTML = `Concluir Meus Votos <i class="fa-solid fa-crown text-yellow-300"></i>`;
+                nextBtn.innerHTML = `Revisar & Concluir Votos <i class="fa-solid fa-clipboard-check text-yellow-300"></i>`;
             } else {
                 nextBtn.innerHTML = `Próximo Look <i class="fa-solid fa-arrow-right"></i>`;
             }
@@ -2600,28 +2719,150 @@
             }
         };
 
-        window.nextRunwayModel = async function() {
+        window.nextRunwayModel = function() {
             const playersArr = Object.values(state.players);
             if (state.runwayIndex < playersArr.length - 1) {
                 state.runwayIndex++;
                 showCurrentRunwayModel(true);
             } else {
-                const otherPlayers = playersArr.filter(p => p.id !== state.userId);
-                const missingVotes = otherPlayers.filter(p => !(p.votes && p.votes[state.userId]));
-
-                if (missingVotes.length > 0) {
-                    showToast(`⭐ Você ainda não votou em ${missingVotes.length} look(s)! Use "Ver Look Anterior" para avaliar.`);
-                    return;
-                }
-
-                showToast("💖 Seus votos foram salvos! Abrindo o Pódio da Passarela...", "gold");
-                await hostFinishVotingNow(true);
+                openVoteReviewScreen();
             }
         };
 
+        function openVoteReviewScreen() {
+            state.votingStatusMode = 'review';
+            renderVotingStatusScreen();
+            switchScreen('voting-status');
+        }
+
+        window.returnToRunwayIndex = function(idx) {
+            const playersArr = Object.values(state.players);
+            if (playersArr.length === 0) return;
+            state.runwayIndex = Math.max(0, Math.min(idx, playersArr.length - 1));
+            startRunwayUI();
+        };
+
+        window.reopenVoteReview = async function() {
+            const me = state.players[state.userId];
+            if (me && me.finishedVoting) {
+                me.finishedVoting = false;
+                await pushStateToCloud();
+            }
+            openVoteReviewScreen();
+        };
+
+        window.confirmMyVotes = async function() {
+            const playersArr = Object.values(state.players);
+            const otherPlayers = playersArr.filter(p => p.id !== state.userId);
+            const missingVotes = otherPlayers.filter(p => !(p.votes && p.votes[state.userId]));
+
+            if (missingVotes.length > 0) {
+                const firstMissingIdx = playersArr.findIndex(p => p.id === missingVotes[0].id);
+                showToast(`⭐ Falta votar em <b>${escapeHtml(missingVotes[0].name)}</b>! Abrindo o look dela para você avaliar.`);
+                returnToRunwayIndex(firstMissingIdx >= 0 ? firstMissingIdx : 0);
+                return;
+            }
+
+            const me = state.players[state.userId];
+            if (me) {
+                me.finishedVoting = true;
+            }
+            await pushStateToCloud();
+
+            if (areAllActiveVotersDone()) {
+                showToast("🎉 Todo mundo concluiu os votos! Abrindo o Pódio...", "gold");
+                await hostFinishVotingNow(true);
+            } else {
+                state.votingStatusMode = 'waiting';
+                renderVotingStatusScreen();
+                switchScreen('voting-status');
+                showToast("✅ Seus votos foram confirmados! Aguardando as outras modelos...", "success");
+            }
+        };
+
+        function renderVotingStatusScreen() {
+            const reviewCard = document.getElementById('vote-review-card');
+            const waitingCard = document.getElementById('vote-waiting-card');
+
+            if (state.votingStatusMode === 'review') {
+                reviewCard.classList.remove('hidden');
+                waitingCard.classList.add('hidden');
+
+                const playersArr = Object.values(state.players);
+                const reviewListEl = document.getElementById('vote-review-list');
+
+                reviewListEl.innerHTML = playersArr.map((p, idx) => {
+                    const isMe = p.id === state.userId;
+                    const myVote = (p.votes && p.votes[state.userId]) || 0;
+                    const myComment = (p.comments && p.comments[state.userId]) || null;
+                    const thumb = (p.photos && p.photos[0]) || p.avatar || '';
+
+                    return `
+                        <div class="bg-purple-950/65 border ${isMe ? 'border-pink-200/30' : (myVote > 0 ? 'border-emerald-300/50' : 'border-amber-300/70')} rounded-2xl p-3 flex items-center justify-between gap-2.5">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <img src="${thumb}" class="w-11 h-11 shrink-0 rounded-xl object-cover border border-white/70">
+                                <div class="min-w-0">
+                                    <p class="text-xs font-extrabold text-white truncate">${escapeHtml(p.name)}</p>
+                                    ${isMe
+                                        ? `<span class="text-[11px] text-pink-200 font-semibold block">Seu próprio look</span>`
+                                        : `<span class="text-[11px] font-bold ${myVote > 0 ? 'text-yellow-300' : 'text-amber-200'} block">
+                                            ${myVote > 0 ? `⭐ Nota: ${myVote} estrela(s)` : '⚠️ Sem voto ainda'}
+                                           </span>`
+                                    }
+                                    ${!isMe && myComment && myComment.text
+                                        ? `<p class="text-[10px] text-pink-100/90 truncate mt-0.5">💬 Pose #${myComment.poseIndex || 1}: "${escapeHtml(myComment.text)}"</p>`
+                                        : ''
+                                    }
+                                </div>
+                            </div>
+                            <button type="button" onclick="returnToRunwayIndex(${idx})" class="shrink-0 bg-white/15 hover:bg-white/25 border border-white/35 px-3 py-1.5 rounded-xl text-[11px] font-extrabold text-white transition">
+                                ${isMe ? 'Ver Poses' : 'Editar'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                reviewCard.classList.add('hidden');
+                waitingCard.classList.remove('hidden');
+
+                const voters = getActiveVotersList();
+                const doneCount = voters.filter(v => hasPlayerFinishedVoting(v)).length;
+                const totalCount = voters.length;
+
+                document.getElementById('waiting-progress-summary').textContent =
+                    `${doneCount} de ${totalCount} modelo(s) concluíram os votos • O pódio abre automaticamente ao terminar!`;
+
+                const waitingListEl = document.getElementById('waiting-voters-list');
+                waitingListEl.innerHTML = voters.map(v => {
+                    const isDone = hasPlayerFinishedVoting(v);
+                    const thumb = (v.photos && v.photos[0]) || v.avatar || '';
+                    return `
+                        <div class="flex items-center justify-between bg-purple-950/65 border ${isDone ? 'border-emerald-300/50' : 'border-yellow-300/50'} rounded-2xl px-3.5 py-2.5">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <img src="${thumb}" class="w-9 h-9 shrink-0 rounded-full object-cover border border-white/70">
+                                <span class="text-xs font-extrabold text-white truncate">${escapeHtml(v.name)}</span>
+                            </div>
+                            <span class="text-[11px] font-extrabold px-2.5 py-1 rounded-full ${isDone
+                                ? 'bg-emerald-400/20 text-emerald-200 border border-emerald-300/50'
+                                : 'bg-yellow-300/20 text-yellow-200 border border-yellow-300/50'}">
+                                ${isDone ? 'Votos prontos ✅' : 'Votando... ⏳'}
+                            </span>
+                        </div>
+                    `;
+                }).join('');
+
+                const hostBox = document.getElementById('waiting-host-actions');
+                if (isHost()) {
+                    hostBox.classList.remove('hidden');
+                } else {
+                    hostBox.classList.add('hidden');
+                }
+            }
+        }
+
         window.hostFinishVotingNow = async function(fromAllVoted = false) {
             if (!fromAllVoted && !isHost()) {
-                showToast("👑 Apenas a anfitriã pode encerrar a votação antes do horário.");
+                showToast("👑 Apenas a anfitriã pode encerrar a votação antes de todo mundo terminar.");
                 return;
             }
             if (state.phase !== 'podium') {
@@ -2821,12 +3062,16 @@
             state.runwayIndex = 0;
             state.runwayPoseIndex = 0;
             state.selectedPreviewPoseIdx = 0;
+            state.votingStatusMode = 'review';
             state.expandedPodiumComments = {};
 
             Object.values(state.players).forEach(p => {
                 if (!p.id.startsWith('bot_')) {
                     p.photos = p.avatar ? [p.avatar] : [];
                     p.lookSaved = p.photos.length > 0;
+                    p.finishedVoting = false;
+                } else {
+                    p.finishedVoting = true;
                 }
                 p.votes = {};
                 p.comments = {};
